@@ -20,7 +20,7 @@
 
 #include <plugins/sensorfw_common.h>
 
-#include <QObject>
+#include <utils/socketreader.h>
 
 namespace
 {
@@ -38,25 +38,38 @@ waydroid::core::Sensorfw::Sensorfw(
       dbus_event_loop{name},
       m_socket(std::make_shared<SocketReader>()),
       m_plugin(plugin),
-      m_pid(getpid())
+      m_pluginPath(nullptr, free),
+      m_pid(getpid()),
+      m_gsource(nullptr, g_source_unref)
 {
     if (!load_plugin())
         throw std::runtime_error("Could not create sensorfw backend");
 
     request_sensor();
 
+    char *new_str;
+    if (asprintf(&new_str,"%s/%s", dbus_sensorfw_path, plugin_string()) == -1)
+        GINFO("Unable to create the plugin path.");
+    else
+        m_pluginPath.reset(new_str);
+
     GINFO("Got plugin_string %s", plugin_string());
     GINFO("Got plugin_interface %s", plugin_interface());
     GINFO("Got plugin_path %s", plugin_path());
 
-    m_socket->initiateConnection(m_sessionid);
+    dbus_event_loop.enqueue([this]{
+        m_socket->initiateConnection(m_sessionid);
+    }).get();
 }
 
 waydroid::core::Sensorfw::~Sensorfw()
 {
     stop();
     release_sensor();
-    m_socket->dropConnection();
+
+    dbus_event_loop.enqueue([this]{
+        m_socket->dropConnection();
+    }).get();
 }
 
 const char* waydroid::core::Sensorfw::plugin_string() const
@@ -105,16 +118,16 @@ const char* waydroid::core::Sensorfw::plugin_interface() const
 
 const char* waydroid::core::Sensorfw::plugin_path() const
 {
-    char *new_str;
-    if (asprintf(&new_str,"%s/%s", dbus_sensorfw_path, plugin_string()) == -1)
+    if (!m_pluginPath)
         return "";
 
-    return new_str;
+    return m_pluginPath.get();
 }
 
 bool waydroid::core::Sensorfw::load_plugin()
 {
-    int constexpr timeout_default = 100;
+    int constexpr timeout_default = 10000;
+    g_autoptr(GError) err = NULL;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,
             dbus_sensorfw_name,
@@ -126,11 +139,12 @@ bool waydroid::core::Sensorfw::load_plugin()
             G_DBUS_CALL_FLAGS_NONE,
             timeout_default,
             NULL,
-            NULL);
+            &err);
 
-    if (!result)
+    if (err != NULL)
     {
-        GINFO("failed to call load_plugin");
+        GINFO("failed to call load_plugin: %s", err->message);
+        g_variant_unref(result);
         return false;
     }
 
@@ -143,7 +157,7 @@ bool waydroid::core::Sensorfw::load_plugin()
 
 void waydroid::core::Sensorfw::request_sensor()
 {
-    int constexpr timeout_default = 100;
+    int constexpr timeout_default = 5000;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,
             dbus_sensorfw_name,
@@ -174,7 +188,7 @@ void waydroid::core::Sensorfw::request_sensor()
 
 bool waydroid::core::Sensorfw::release_sensor()
 {
-    int constexpr timeout_default = 100;
+    int constexpr timeout_default = 1000;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,
             dbus_sensorfw_name,
@@ -201,23 +215,39 @@ bool waydroid::core::Sensorfw::release_sensor()
     return the_result;
 }
 
+gboolean waydroid::core::Sensorfw::static_data_recieved(GSocket * /* socket */, GIOCondition cond, gpointer user_data)
+{
+    if (! (cond & G_IO_IN))
+        return G_SOURCE_CONTINUE;
+
+    auto self = reinterpret_cast<Sensorfw *>(user_data);
+    self->data_recived_impl();
+
+    return G_SOURCE_CONTINUE;
+}
+
 void waydroid::core::Sensorfw::start()
 {
-    if (m_running)
+    if (m_gsource)
         return;
 
-    m_running = true;
-    read_loop = std::thread([this](){
-        GINFO("%s Eventloop started", plugin_string());
-        while (m_running) {
-            if (m_socket->socket()->waitForReadyRead(10))
-                data_recived_impl();
-        }
-        m_running = false;
-        GINFO("%s: Eventloop stopped", plugin_string());
-    });
+    GSocket *socket = g_socket_connection_get_socket(m_socket->socket());
+    m_gsource = std::unique_ptr<GSource, decltype(&g_source_unref)> {
+        g_socket_create_source(socket, G_IO_IN, /* cancellable */ NULL),
+        g_source_unref
+    };
 
-    int constexpr timeout_default = 100;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+    g_source_set_callback(
+        m_gsource.get(),
+        reinterpret_cast<GSourceFunc>(&Sensorfw::static_data_recieved),
+        this,
+        /* notify */ NULL);
+#pragma GCC diagnostic pop
+    g_source_attach(m_gsource.get(), g_main_context_get_thread_default());
+
+    int constexpr timeout_default = 5000;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,
             dbus_sensorfw_name,
@@ -234,6 +264,7 @@ void waydroid::core::Sensorfw::start()
     if (!result)
     {
         GINFO("failed to start SensorfwSensor");
+        stop();
         return;
     }
     g_variant_unref(result);
@@ -241,12 +272,10 @@ void waydroid::core::Sensorfw::start()
 
 void waydroid::core::Sensorfw::stop()
 {
-    if (!m_running)
+    if (!m_gsource)
         return;
 
-    m_running = false;
-
-    int constexpr timeout_default = 100;
+    int constexpr timeout_default = 1000;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,
             dbus_sensorfw_name,
@@ -267,12 +296,12 @@ void waydroid::core::Sensorfw::stop()
         g_variant_unref(result);
     }
 
-    read_loop.join();
-    read_loop = std::thread();
+    g_source_destroy(m_gsource.get());
+    m_gsource.reset();
 }
 
 void waydroid::core::Sensorfw::set_interval(int interval) {
-    int constexpr timeout_default = 100;
+    int constexpr timeout_default = 1000;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,
             dbus_sensorfw_name,

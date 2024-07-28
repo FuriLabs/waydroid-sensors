@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --parallel --buildsystem cmake --fail-missing
+	dh $@ --parallel --buildsystem cmake
 
 override_dh_installsystemd:
 	dh_installsystemd -pwaydroid-sensors --name=waydroid-sensors waydroid-sensors.service

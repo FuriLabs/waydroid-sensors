@@ -3,6 +3,8 @@ Description=Waydroid sensor daemon
 Requires=waydroid-container.service
 PartOf=waydroid-container.service
 After=waydroid-container.service
+StartLimitBurst=5000
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple

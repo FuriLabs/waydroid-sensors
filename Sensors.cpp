@@ -152,7 +152,7 @@ static void sensor_event_cb(void *userdata, int id)
             }
             break;
         case ID_MAGNETIC_FIELD:
-            if (dev->mSensorFWDevice->GetMagnetometerEvent(&ts, &x, &y, &z, &rx, &ry, &rz, &tmp) == 0) {
+            if (false && dev->mSensorFWDevice->GetMagnetometerEvent(&ts, &x, &y, &z, &rx, &ry, &rz, &tmp) == 0) {
                 if (ts != dev->last_TimeStamp[ID_MAGNETIC_FIELD]) {
                     new_sensors |= SENSORS_MAGNETIC_FIELD;
                     events[ID_MAGNETIC_FIELD].u.vec3.x = x;
@@ -171,6 +171,22 @@ static void sensor_event_cb(void *userdata, int id)
                     events[ID_MAGNETIC_FIELD_UNCALIBRATED].sensorType = SENSOR_TYPE_MAGNETIC_FIELD;
                     dev->last_TimeStamp[ID_MAGNETIC_FIELD_UNCALIBRATED] = ts;
                 }
+            } else {
+                new_sensors |= SENSORS_MAGNETIC_FIELD;
+                events[ID_MAGNETIC_FIELD].u.vec3.x = 0;
+                events[ID_MAGNETIC_FIELD].u.vec3.y = 0;
+                events[ID_MAGNETIC_FIELD].u.vec3.z = 0;
+                events[ID_MAGNETIC_FIELD].u.vec3.status = UNRELIABLE;
+                events[ID_MAGNETIC_FIELD].sensorType = SENSOR_TYPE_MAGNETIC_FIELD;
+                dev->last_TimeStamp[ID_MAGNETIC_FIELD] = 0;
+
+                new_sensors |= SENSORS_MAGNETIC_FIELD_UNCALIBRATED;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.x = 0;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.y = 0;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.z = 0;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.status = UNRELIABLE;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].sensorType = SENSOR_TYPE_MAGNETIC_FIELD;
+                dev->last_TimeStamp[ID_MAGNETIC_FIELD_UNCALIBRATED] = 0;
             }
             break;
         case ID_DEVICE_ORIENTATION:

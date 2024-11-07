@@ -32,7 +32,7 @@ namespace waydroid {
 namespace sensors {
 namespace implementation {
 
-constexpr char kWaydroidVendor[] = "The Waydroid Project";
+constexpr char kWaydroidVendor[] = "Android App Container";
 
 typedef struct SensorDevice {
     SensorFW *mSensorFWDevice;

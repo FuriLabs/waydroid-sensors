@@ -128,6 +128,8 @@ typedef struct {
 typedef void (*sensor_event_cb_t)(void *userdata, int id);
 
 struct SensorFW {
+    void waitForSensorfwService();
+
     SensorFW();
 
     void RegisterSensors(sensor_event_cb_t cb, void *userdata);

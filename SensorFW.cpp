@@ -31,10 +31,63 @@ std::string the_dbus_bus_address()
 	return address ? address.get() : std::string{};
 }
 
+void SensorFW::waitForSensorfwService() {
+    GDBusConnection *connection = g_bus_get_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr);
+    if (!connection) {
+        GINFO("Failed to connect to system bus");
+        return;
+    }
+
+    const int RETRY_DELAY_MS = 1000;  // 1 second delay between retries
+    bool service_available = false;
+
+    GINFO("Waiting for SensorFW service to become available...");
+    while (!service_available) {
+        GError *error = nullptr;
+        GVariant *result = g_dbus_connection_call_sync(
+            connection,
+            "org.freedesktop.DBus",
+            "/org/freedesktop/DBus",
+            "org.freedesktop.DBus",
+            "NameHasOwner",
+            g_variant_new("(s)", "com.nokia.SensorService"),
+            G_VARIANT_TYPE("(b)"),
+            G_DBUS_CALL_FLAGS_NONE,
+            -1,
+            nullptr,
+            &error
+        );
+
+        if (result) {
+            gboolean has_owner = FALSE;
+            g_variant_get(result, "(b)", &has_owner);
+            g_variant_unref(result);
+
+            if (has_owner) {
+                service_available = true;
+                GINFO("SensorFW service is available");
+                break;
+            }
+        }
+
+        if (error) {
+            GINFO("Error checking service: %s", error->message);
+            g_error_free(error);
+        }
+
+        g_usleep(RETRY_DELAY_MS * 1000);
+    }
+
+    g_object_unref(connection);
+    GINFO("SensorFW service is now available");
+}
+
 SensorFW::SensorFW()
     : data(nullptr) {
     std::string dbus_address = the_dbus_bus_address();
     data = g_new0(SensorData, 1);
+
+    waitForSensorfwService();
 
     try {
         data->accelerometer_sensor = std::make_shared<waydroid::core::SensorfwAccelerometerSensor>(dbus_address);

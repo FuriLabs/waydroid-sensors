@@ -150,6 +150,8 @@ struct SensorFW {
     int GetStepcounterEvent(uint64_t *ts, unsigned *value);
     int GetTemperatureEvent(uint64_t *ts, unsigned *value);
 
+    void cleanup();
+
 private:
     SensorData *data;
     std::vector<waydroid::core::HandlerRegistration> mRegistrations;

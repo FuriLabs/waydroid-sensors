@@ -715,6 +715,24 @@ void Sensors::killLoops() {
         g_main_loop_quit(mSensorDevice->loop);
 }
 
+void Sensors::reinitialize() {
+    if (mSensorDevice && mSensorDevice->mSensorFWDevice) {
+        mSensorDevice->mSensorFWDevice->RegisterSensors(sensor_event_cb, mSensorDevice);
+
+        for (int id = 0; id < MAX_NUM_SENSORS; id++) {
+            if (mSensorDevice->active_sensors & (1U << id)) {
+                mSensorDevice->mSensorFWDevice->EnableSensorEvents(id);
+            }
+        }
+    }
+}
+
+void Sensors::cleanup() {
+    if (mSensorDevice && mSensorDevice->mSensorFWDevice) {
+        mSensorDevice->mSensorFWDevice->cleanup();
+    }
+}
+
 }  // namespace implementation
 }  // namespace sensors
 }  // namespace waydroid

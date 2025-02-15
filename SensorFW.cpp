@@ -65,7 +65,6 @@ void SensorFW::waitForSensorfwService() {
 
             if (has_owner) {
                 service_available = true;
-                GINFO("SensorFW service is available");
                 break;
             }
         }
@@ -481,4 +480,15 @@ int SensorFW::GetTemperatureEvent(uint64_t *ts, unsigned *value) {
     return 0;
 }
 
+void SensorFW::cleanup() {
+    for (int id = 0; id < MAX_NUM_SENSORS; id++) {
+        if (data->sensorEventEnable[id]) {
+            DisableSensorEvents(id);
+        }
+    }
+
+    mRegistrations.clear();
+
+    memset(data->sensorEventEnable, 0, sizeof(data->sensorEventEnable));
+}
 } // namespace waydroid

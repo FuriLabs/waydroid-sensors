@@ -368,6 +368,7 @@ app_add_service_done(
 
     if (status == GBINDER_STATUS_OK) {
         printf("Added \"%s\"\n", DEFAULT_NAME);
+        app->service->reinitialize();
         app->ret = RET_OK;
     } else {
         GERR("Failed to add \"%s\" (%d)", DEFAULT_NAME, status);
@@ -389,6 +390,7 @@ app_sm_presence_handler(
             app_add_service_done, app);
     } else {
         GINFO("Service manager has died");
+        app->service->cleanup();
         app->service->killLoops();
     }
 }

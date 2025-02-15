@@ -56,6 +56,8 @@ struct Sensors {
     std::vector<sensors_event_t> poll(int32_t maxCount, int *err_out);
     int flush(int32_t handle);
     void killLoops();
+    void reinitialize();
+    void cleanup();
 
 private:
     static constexpr int32_t kPollMaxBufferSize = 128;

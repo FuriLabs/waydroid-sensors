@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](LidData){};
 }
 
-waydroid::core::SensorfwLidSensor::SensorfwLidSensor(
+andromeda::core::SensorfwLidSensor::SensorfwLidSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Lid", PluginType::LID),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwLidSensor::register_lid_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwLidSensor::register_lid_handler(
     LidHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwLidSensor::register_
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwLidSensor::enable_lid_events()
+void andromeda::core::SensorfwLidSensor::enable_lid_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwLidSensor::enable_lid_events()
         }).get();
 }
 
-void waydroid::core::SensorfwLidSensor::disable_lid_events()
+void andromeda::core::SensorfwLidSensor::disable_lid_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwLidSensor::disable_lid_events()
         }).get();
 }
 
-void waydroid::core::SensorfwLidSensor::data_recived_impl()
+void andromeda::core::SensorfwLidSensor::data_recived_impl()
 {
     std::vector<LidData> values;
     if(!m_socket->read<LidData>(values))

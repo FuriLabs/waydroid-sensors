@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](ProximityData){};
 }
 
-waydroid::core::SensorfwProximitySensor::SensorfwProximitySensor(
+andromeda::core::SensorfwProximitySensor::SensorfwProximitySensor(
     std::string const& dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Proximity", PluginType::PROXIMITY),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwProximitySensor::register_proximity_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwProximitySensor::register_proximity_handler(
     ProximityHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwProximitySensor::reg
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwProximitySensor::enable_proximity_events()
+void andromeda::core::SensorfwProximitySensor::enable_proximity_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwProximitySensor::enable_proximity_events()
         }).get();
 }
 
-void waydroid::core::SensorfwProximitySensor::disable_proximity_events()
+void andromeda::core::SensorfwProximitySensor::disable_proximity_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwProximitySensor::disable_proximity_events()
         }).get();
 }
 
-void waydroid::core::SensorfwProximitySensor::data_recived_impl()
+void andromeda::core::SensorfwProximitySensor::data_recived_impl()
 {
     std::vector<ProximityData> values;
     if(!m_socket->read<ProximityData>(values))

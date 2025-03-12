@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -30,7 +30,7 @@ char const* const dbus_sensorfw_path = "/SensorManager";
 char const* const dbus_sensorfw_interface = "local.SensorManager";
 }
 
-waydroid::core::Sensorfw::Sensorfw(
+andromeda::core::Sensorfw::Sensorfw(
     std::string const& dbus_bus_address,
     std::string const& name,
     PluginType const& plugin)
@@ -62,7 +62,7 @@ waydroid::core::Sensorfw::Sensorfw(
     }).get();
 }
 
-waydroid::core::Sensorfw::~Sensorfw()
+andromeda::core::Sensorfw::~Sensorfw()
 {
     stop();
     release_sensor();
@@ -72,7 +72,7 @@ waydroid::core::Sensorfw::~Sensorfw()
     }).get();
 }
 
-const char* waydroid::core::Sensorfw::plugin_string() const
+const char* andromeda::core::Sensorfw::plugin_string() const
 {
     switch (m_plugin) {
         case PluginType::ACCELEROMETER: return "accelerometersensor";
@@ -94,7 +94,7 @@ const char* waydroid::core::Sensorfw::plugin_string() const
     return "";
 }
 
-const char* waydroid::core::Sensorfw::plugin_interface() const
+const char* andromeda::core::Sensorfw::plugin_interface() const
 {
     switch (m_plugin) {
         case PluginType::ACCELEROMETER: return "local.AccelerometerSensor";
@@ -116,7 +116,7 @@ const char* waydroid::core::Sensorfw::plugin_interface() const
     return "";
 }
 
-const char* waydroid::core::Sensorfw::plugin_path() const
+const char* andromeda::core::Sensorfw::plugin_path() const
 {
     if (!m_pluginPath)
         return "";
@@ -124,7 +124,7 @@ const char* waydroid::core::Sensorfw::plugin_path() const
     return m_pluginPath.get();
 }
 
-bool waydroid::core::Sensorfw::load_plugin()
+bool andromeda::core::Sensorfw::load_plugin()
 {
     int constexpr timeout_default = 10000;
     g_autoptr(GError) err = NULL;
@@ -155,7 +155,7 @@ bool waydroid::core::Sensorfw::load_plugin()
     return the_result;
 }
 
-void waydroid::core::Sensorfw::request_sensor()
+void andromeda::core::Sensorfw::request_sensor()
 {
     int constexpr timeout_default = 5000;
     auto const result =  g_dbus_connection_call_sync(
@@ -186,7 +186,7 @@ void waydroid::core::Sensorfw::request_sensor()
     GINFO("Got new plugin for %s with pid %i and session %i", plugin_string(), m_pid, m_sessionid);
 }
 
-bool waydroid::core::Sensorfw::release_sensor()
+bool andromeda::core::Sensorfw::release_sensor()
 {
     int constexpr timeout_default = 1000;
     auto const result =  g_dbus_connection_call_sync(
@@ -215,7 +215,7 @@ bool waydroid::core::Sensorfw::release_sensor()
     return the_result;
 }
 
-gboolean waydroid::core::Sensorfw::static_data_recieved(GSocket * /* socket */, GIOCondition cond, gpointer user_data)
+gboolean andromeda::core::Sensorfw::static_data_recieved(GSocket * /* socket */, GIOCondition cond, gpointer user_data)
 {
     if (! (cond & G_IO_IN))
         return G_SOURCE_CONTINUE;
@@ -226,7 +226,7 @@ gboolean waydroid::core::Sensorfw::static_data_recieved(GSocket * /* socket */, 
     return G_SOURCE_CONTINUE;
 }
 
-void waydroid::core::Sensorfw::start()
+void andromeda::core::Sensorfw::start()
 {
     if (m_gsource)
         return;
@@ -270,7 +270,7 @@ void waydroid::core::Sensorfw::start()
     g_variant_unref(result);
 }
 
-void waydroid::core::Sensorfw::stop()
+void andromeda::core::Sensorfw::stop()
 {
     if (!m_gsource)
         return;
@@ -300,7 +300,7 @@ void waydroid::core::Sensorfw::stop()
     m_gsource.reset();
 }
 
-void waydroid::core::Sensorfw::set_interval(int interval) {
+void andromeda::core::Sensorfw::set_interval(int interval) {
     int constexpr timeout_default = 1000;
     auto const result =  g_dbus_connection_call_sync(
             dbus_connection,

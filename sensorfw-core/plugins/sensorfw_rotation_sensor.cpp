@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](TimedXyzData){};
 }
 
-waydroid::core::SensorfwRotationSensor::SensorfwRotationSensor(
+andromeda::core::SensorfwRotationSensor::SensorfwRotationSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Rotation", PluginType::ROTATION),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwRotationSensor::register_rotation_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwRotationSensor::register_rotation_handler(
     RotationHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwRotationSensor::regi
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwRotationSensor::enable_rotation_events()
+void andromeda::core::SensorfwRotationSensor::enable_rotation_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwRotationSensor::enable_rotation_events()
         }).get();
 }
 
-void waydroid::core::SensorfwRotationSensor::disable_rotation_events()
+void andromeda::core::SensorfwRotationSensor::disable_rotation_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwRotationSensor::disable_rotation_events()
         }).get();
 }
 
-void waydroid::core::SensorfwRotationSensor::data_recived_impl()
+void andromeda::core::SensorfwRotationSensor::data_recived_impl()
 {
     std::vector<TimedXyzData> values;
     if(!m_socket->read<TimedXyzData>(values))

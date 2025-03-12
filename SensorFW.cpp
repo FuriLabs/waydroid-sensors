@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -20,7 +20,7 @@
 #include <gio/gio.h>
 #include <iostream>
 
-namespace waydroid {
+namespace andromeda {
 
 std::string the_dbus_bus_address()
 {
@@ -89,35 +89,35 @@ SensorFW::SensorFW()
     waitForSensorfwService();
 
     try {
-        data->accelerometer_sensor = std::make_shared<waydroid::core::SensorfwAccelerometerSensor>(dbus_address);
+        data->accelerometer_sensor = std::make_shared<andromeda::core::SensorfwAccelerometerSensor>(dbus_address);
         data->sensorAvailable[ID_ACCELEROMETER] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwAccelerometerSensor: %s", e.what());
         data->sensorAvailable[ID_ACCELEROMETER] = FALSE;
     }
     try {
-        data->gyroscope_sensor = std::make_shared<waydroid::core::SensorfwGyroscopeSensor>(dbus_address);
+        data->gyroscope_sensor = std::make_shared<andromeda::core::SensorfwGyroscopeSensor>(dbus_address);
         data->sensorAvailable[ID_GYROSCOPE] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwGyroscopeSensor: %s", e.what());
         data->sensorAvailable[ID_GYROSCOPE] = FALSE;
     }
     try {
-        data->humidity_sensor = std::make_shared<waydroid::core::SensorfwHumiditySensor>(dbus_address);
+        data->humidity_sensor = std::make_shared<andromeda::core::SensorfwHumiditySensor>(dbus_address);
         data->sensorAvailable[ID_HUMIDITY] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwHumiditySensor: %s", e.what());
         data->sensorAvailable[ID_HUMIDITY] = FALSE;
     }
     try {
-        data->light_sensor = std::make_shared<waydroid::core::SensorfwLightSensor>(dbus_address);
+        data->light_sensor = std::make_shared<andromeda::core::SensorfwLightSensor>(dbus_address);
         data->sensorAvailable[ID_LIGHT] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwLightSensor: %s", e.what());
         data->sensorAvailable[ID_LIGHT] = FALSE;
     }
     try {
-        data->magnetometer_sensor = std::make_shared<waydroid::core::SensorfwMagnetometerSensor>(dbus_address);
+        data->magnetometer_sensor = std::make_shared<andromeda::core::SensorfwMagnetometerSensor>(dbus_address);
         data->sensorAvailable[ID_MAGNETIC_FIELD] = TRUE;
         data->sensorAvailable[ID_MAGNETIC_FIELD_UNCALIBRATED] = TRUE;
     } catch (std::exception const &e) {
@@ -126,35 +126,35 @@ SensorFW::SensorFW()
         data->sensorAvailable[ID_MAGNETIC_FIELD_UNCALIBRATED] = FALSE;
     }
     try {
-        data->orientation_sensor = std::make_shared<waydroid::core::SensorfwOrientationSensor>(dbus_address);
+        data->orientation_sensor = std::make_shared<andromeda::core::SensorfwOrientationSensor>(dbus_address);
         data->sensorAvailable[ID_DEVICE_ORIENTATION] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwOrientationSensor: %s", e.what());
         data->sensorAvailable[ID_DEVICE_ORIENTATION] = FALSE;
     }
     try {
-        data->pressure_sensor = std::make_shared<waydroid::core::SensorfwPressureSensor>(dbus_address);
+        data->pressure_sensor = std::make_shared<andromeda::core::SensorfwPressureSensor>(dbus_address);
         data->sensorAvailable[ID_PRESSURE] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwPressureSensor: %s", e.what());
         data->sensorAvailable[ID_PRESSURE] = FALSE;
     }
     try {
-        data->proximity_sensor = std::make_shared<waydroid::core::SensorfwProximitySensor>(dbus_address);
+        data->proximity_sensor = std::make_shared<andromeda::core::SensorfwProximitySensor>(dbus_address);
         data->sensorAvailable[ID_PROXIMITY] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwProximitySensor: %s", e.what());
         data->sensorAvailable[ID_PROXIMITY] = FALSE;
     }
     try {
-        data->stepcounter_sensor = std::make_shared<waydroid::core::SensorfwStepcounterSensor>(dbus_address);
+        data->stepcounter_sensor = std::make_shared<andromeda::core::SensorfwStepcounterSensor>(dbus_address);
         data->sensorAvailable[ID_STEPCOUNTER] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwStepcounterSensor: %s", e.what());
         data->sensorAvailable[ID_STEPCOUNTER] = FALSE;
     }
     try {
-        data->temperature_sensor = std::make_shared<waydroid::core::SensorfwTemperatureSensor>(dbus_address);
+        data->temperature_sensor = std::make_shared<andromeda::core::SensorfwTemperatureSensor>(dbus_address);
         data->sensorAvailable[ID_TEMPERATURE] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwTemperatureSensor: %s", e.what());
@@ -491,4 +491,4 @@ void SensorFW::cleanup() {
 
     memset(data->sensorEventEnable, 0, sizeof(data->sensorEventEnable));
 }
-} // namespace waydroid
+} // namespace andromeda

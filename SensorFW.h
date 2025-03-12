@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -32,7 +32,7 @@
 
 #include <vector>
 
-namespace waydroid {
+namespace andromeda {
 
 #define MAX_NUM_SENSORS 11
 
@@ -101,16 +101,16 @@ typedef struct {
     gboolean sensorEventEnable[MAX_NUM_SENSORS];
 
     /* Sensors */
-    std::shared_ptr<waydroid::core::SensorfwAccelerometerSensor> accelerometer_sensor;
-    std::shared_ptr<waydroid::core::SensorfwGyroscopeSensor> gyroscope_sensor;
-    std::shared_ptr<waydroid::core::SensorfwHumiditySensor> humidity_sensor;
-    std::shared_ptr<waydroid::core::SensorfwLightSensor> light_sensor;
-    std::shared_ptr<waydroid::core::SensorfwMagnetometerSensor> magnetometer_sensor;
-    std::shared_ptr<waydroid::core::SensorfwOrientationSensor> orientation_sensor;
-    std::shared_ptr<waydroid::core::SensorfwPressureSensor> pressure_sensor;
-    std::shared_ptr<waydroid::core::SensorfwProximitySensor> proximity_sensor;
-    std::shared_ptr<waydroid::core::SensorfwStepcounterSensor> stepcounter_sensor;
-    std::shared_ptr<waydroid::core::SensorfwTemperatureSensor> temperature_sensor;
+    std::shared_ptr<andromeda::core::SensorfwAccelerometerSensor> accelerometer_sensor;
+    std::shared_ptr<andromeda::core::SensorfwGyroscopeSensor> gyroscope_sensor;
+    std::shared_ptr<andromeda::core::SensorfwHumiditySensor> humidity_sensor;
+    std::shared_ptr<andromeda::core::SensorfwLightSensor> light_sensor;
+    std::shared_ptr<andromeda::core::SensorfwMagnetometerSensor> magnetometer_sensor;
+    std::shared_ptr<andromeda::core::SensorfwOrientationSensor> orientation_sensor;
+    std::shared_ptr<andromeda::core::SensorfwPressureSensor> pressure_sensor;
+    std::shared_ptr<andromeda::core::SensorfwProximitySensor> proximity_sensor;
+    std::shared_ptr<andromeda::core::SensorfwStepcounterSensor> stepcounter_sensor;
+    std::shared_ptr<andromeda::core::SensorfwTemperatureSensor> temperature_sensor;
 
     /* Events */
     AccelerationData accelerometer_event;
@@ -154,9 +154,9 @@ struct SensorFW {
 
 private:
     SensorData *data;
-    std::vector<waydroid::core::HandlerRegistration> mRegistrations;
+    std::vector<andromeda::core::HandlerRegistration> mRegistrations;
 };
 
-}  // namespace waydroid
+}  // namespace andromeda
 
 #endif  // SENSORHW_H_

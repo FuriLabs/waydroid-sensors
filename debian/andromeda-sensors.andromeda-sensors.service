@@ -1,0 +1,17 @@
+[Unit]
+Description=Andromeda sensor daemon
+Requires=andromeda-container.service
+PartOf=andromeda-container.service
+After=andromeda-container.service
+StartLimitBurst=5000
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/andromeda-sensors
+RestartSec=1
+TimeoutStartSec=5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

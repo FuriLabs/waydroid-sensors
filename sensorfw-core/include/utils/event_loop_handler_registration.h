@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016 Canonical Ltd.
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -22,7 +22,7 @@
 #include <utils/handler_registration.h>
 #include <utils/event_loop.h>
 
-namespace waydroid
+namespace andromeda
 {
 namespace core
 {
@@ -31,7 +31,7 @@ class EventLoopHandlerRegistration : public HandlerRegistration
 {
 public:
     EventLoopHandlerRegistration(
-        waydroid::core::EventLoop& loop,
+        andromeda::core::EventLoop& loop,
         std::function<void()> const& register_func,
         std::function<void()> const& unregister)
         : HandlerRegistration{[&, unregister] { loop.enqueue(unregister).wait(); }}
@@ -40,7 +40,7 @@ public:
     }
 
     EventLoopHandlerRegistration(
-        waydroid::core::EventLoop& loop,
+        andromeda::core::EventLoop& loop,
         std::function<void()> const& unregister)
         : HandlerRegistration{[&, unregister] { loop.enqueue(unregister).wait(); }}
     {

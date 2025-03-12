@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](TimedUnsigned){};
 }
 
-waydroid::core::SensorfwHumiditySensor::SensorfwHumiditySensor(
+andromeda::core::SensorfwHumiditySensor::SensorfwHumiditySensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Humidity", PluginType::HUMIDITY),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwHumiditySensor::register_humidity_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwHumiditySensor::register_humidity_handler(
     HumidityHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwHumiditySensor::regi
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwHumiditySensor::enable_humidity_events()
+void andromeda::core::SensorfwHumiditySensor::enable_humidity_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwHumiditySensor::enable_humidity_events()
         }).get();
 }
 
-void waydroid::core::SensorfwHumiditySensor::disable_humidity_events()
+void andromeda::core::SensorfwHumiditySensor::disable_humidity_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwHumiditySensor::disable_humidity_events()
         }).get();
 }
 
-void waydroid::core::SensorfwHumiditySensor::data_recived_impl()
+void andromeda::core::SensorfwHumiditySensor::data_recived_impl()
 {
     std::vector<TimedUnsigned> values;
     if(!m_socket->read<TimedUnsigned>(values))

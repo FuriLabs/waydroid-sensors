@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](TimedUnsigned){};
 }
 
-waydroid::core::SensorfwTemperatureSensor::SensorfwTemperatureSensor(
+andromeda::core::SensorfwTemperatureSensor::SensorfwTemperatureSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Temperature", PluginType::TEMPERATURE),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwTemperatureSensor::register_temperature_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwTemperatureSensor::register_temperature_handler(
     TemperatureHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwTemperatureSensor::r
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwTemperatureSensor::enable_temperature_events()
+void andromeda::core::SensorfwTemperatureSensor::enable_temperature_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwTemperatureSensor::enable_temperature_events()
         }).get();
 }
 
-void waydroid::core::SensorfwTemperatureSensor::disable_temperature_events()
+void andromeda::core::SensorfwTemperatureSensor::disable_temperature_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwTemperatureSensor::disable_temperature_events()
         }).get();
 }
 
-void waydroid::core::SensorfwTemperatureSensor::data_recived_impl()
+void andromeda::core::SensorfwTemperatureSensor::data_recived_impl()
 {
     std::vector<TimedUnsigned> values;
     if(!m_socket->read<TimedUnsigned>(values))

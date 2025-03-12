@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](CalibratedMagneticFieldData) {};
 }
 
-waydroid::core::SensorfwMagnetometerSensor::SensorfwMagnetometerSensor(
+andromeda::core::SensorfwMagnetometerSensor::SensorfwMagnetometerSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Magnetometer", PluginType::MAGNETOMETER),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwMagnetometerSensor::register_magnetometer_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwMagnetometerSensor::register_magnetometer_handler(
     MagnetometerHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwMagnetometerSensor::
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwMagnetometerSensor::enable_magnetometer_events()
+void andromeda::core::SensorfwMagnetometerSensor::enable_magnetometer_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwMagnetometerSensor::enable_magnetometer_events()
         }).get();
 }
 
-void waydroid::core::SensorfwMagnetometerSensor::disable_magnetometer_events()
+void andromeda::core::SensorfwMagnetometerSensor::disable_magnetometer_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwMagnetometerSensor::disable_magnetometer_events()
         }).get();
 }
 
-void waydroid::core::SensorfwMagnetometerSensor::data_recived_impl()
+void andromeda::core::SensorfwMagnetometerSensor::data_recived_impl()
 {
     std::vector<CalibratedMagneticFieldData> values;
     if(!m_socket->read<CalibratedMagneticFieldData>(values))

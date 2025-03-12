@@ -1,10 +1,10 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: waydroid-sensors
-Upstream-Contact: Erfan Abdi <erfangplus@gmail.com>
-Source: https://github.com/WayDroid/waydroid-sensors
+Upstream-Name: andromeda-sensors
+Source: https://github.com/furilabs/andromeda-sensors
 
 Files: *
 Copyright: 2021 Waydroid project, Erfan Abdi <erfangplus@gmail.com>
+           2025 Furi Labs, Bardia Moshiri <bardia@furilabs.com>
 License: GPL-3
 
 License: GPL-3

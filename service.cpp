@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -18,7 +18,7 @@
 
 #include "Sensors.h"
 
-using waydroid::sensors::implementation::Sensors;
+using andromeda::sensors::implementation::Sensors;
 
 #define RET_OK          (0)
 #define RET_NOTFOUND    (1)
@@ -44,7 +44,7 @@ typedef struct response {
     Sensors *service;
 } Response;
 
-static const char logtag[] = "waydroid-sensors-daemon";
+static const char logtag[] = "andromeda-sensors-daemon";
 
 static
 gboolean
@@ -411,7 +411,7 @@ app_run(
     gbinder_servicemanager_add_service(app->sm, DEFAULT_NAME, app->obj,
         app_add_service_done, app);
 
-    GINFO("Waydroid Sensors HAL service ready.");
+    GINFO("Andromeda Sensors HAL service ready.");
 
     g_main_loop_run(app->loop);
 

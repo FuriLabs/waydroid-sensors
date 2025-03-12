@@ -2,7 +2,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 cmake_minimum_required(VERSION 3.0)
-project(waydroid-sensors)
+project(andromeda-sensors)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(GNUInstallDirs)
@@ -20,14 +20,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread")
 add_subdirectory(sensorfw-core)
 
 add_executable(
-    waydroid-sensord
+    andromeda-sensors
 
     SensorFW.cpp
     Sensors.cpp
     service.cpp
 )
 
-target_link_libraries(waydroid-sensord PUBLIC
+target_link_libraries(andromeda-sensors PUBLIC
     ${GIO_LDFLAGS} ${GIO_LIBRARIES}
     ${GIO_UNIX_LDFLAGS} ${GIO_UNIX_LIBRARIES}
     ${GLIB_LDFLAGS} ${GLIB_LIBRARIES}
@@ -37,7 +37,7 @@ target_link_libraries(waydroid-sensord PUBLIC
     sensorfw-core
 )
 
-target_include_directories(waydroid-sensord PUBLIC
+target_include_directories(andromeda-sensors PUBLIC
     ${GIO_INCLUDE_DIRS}
     ${GIO_UNIX_INCLUDE_DIRS}
     ${GLIB_INCLUDE_DIRS}
@@ -47,4 +47,4 @@ target_include_directories(waydroid-sensord PUBLIC
     sensorfw-core/include
 )
 
-install(TARGETS waydroid-sensord RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS andromeda-sensors RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

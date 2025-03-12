@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](CompassData){};
 }
 
-waydroid::core::SensorfwCompassSensor::SensorfwCompassSensor(
+andromeda::core::SensorfwCompassSensor::SensorfwCompassSensor(
     std::string const& dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Compass", PluginType::COMPASS),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwCompassSensor::register_compass_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwCompassSensor::register_compass_handler(
     CompassHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwCompassSensor::regis
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwCompassSensor::enable_compass_events()
+void andromeda::core::SensorfwCompassSensor::enable_compass_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwCompassSensor::enable_compass_events()
         }).get();
 }
 
-void waydroid::core::SensorfwCompassSensor::disable_compass_events()
+void andromeda::core::SensorfwCompassSensor::disable_compass_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwCompassSensor::disable_compass_events()
         }).get();
 }
 
-void waydroid::core::SensorfwCompassSensor::data_recived_impl()
+void andromeda::core::SensorfwCompassSensor::data_recived_impl()
 {
     std::vector<CompassData> values;
     if(!m_socket->read<CompassData>(values))

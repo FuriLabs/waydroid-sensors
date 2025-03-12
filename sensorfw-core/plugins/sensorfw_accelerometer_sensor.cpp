@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](AccelerationData){};
 }
 
-waydroid::core::SensorfwAccelerometerSensor::SensorfwAccelerometerSensor(
+andromeda::core::SensorfwAccelerometerSensor::SensorfwAccelerometerSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Accelerometer", PluginType::ACCELEROMETER),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwAccelerometerSensor::register_accelerometer_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwAccelerometerSensor::register_accelerometer_handler(
     AccelerometerHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwAccelerometerSensor:
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwAccelerometerSensor::enable_accelerometer_events()
+void andromeda::core::SensorfwAccelerometerSensor::enable_accelerometer_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwAccelerometerSensor::enable_accelerometer_events()
         }).get();
 }
 
-void waydroid::core::SensorfwAccelerometerSensor::disable_accelerometer_events()
+void andromeda::core::SensorfwAccelerometerSensor::disable_accelerometer_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwAccelerometerSensor::disable_accelerometer_events()
         }).get();
 }
 
-void waydroid::core::SensorfwAccelerometerSensor::data_recived_impl()
+void andromeda::core::SensorfwAccelerometerSensor::data_recived_impl()
 {
     std::vector<AccelerationData> values;
     if(!m_socket->read<AccelerationData>(values))

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -20,7 +20,7 @@
 
 #include <pthread.h>
 
-namespace waydroid {
+namespace andromeda {
 namespace sensors {
 namespace implementation {
 
@@ -307,7 +307,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
     
     for (int id = 0; id < MAX_NUM_SENSORS; id++) {
         if(!mSensorDevice->mSensorFWDevice->IsSensorAvailable(id)) {
-            GERR("Sensor %s Not found!", waydroid::_SensorIdToName(id));
+            GERR("Sensor %s Not found!", andromeda::_SensorIdToName(id));
             continue;
         }
         sensor_t sensor_info;
@@ -316,7 +316,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
         {
         case ID_ACCELEROMETER:
             sensor_info.name.data.str = "SensorFW 3-axis Accelerometer";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_ACCELEROMETER;
             sensor_info.typeAsString.data.str = "android.sensor.accelerometer";
@@ -342,7 +342,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_GYROSCOPE:
             sensor_info.name.data.str = "SensorFW 3-axis Gyroscope";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_GYROSCOPE;
             sensor_info.typeAsString.data.str = "android.sensor.gyroscope";
@@ -368,7 +368,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_HUMIDITY:
             sensor_info.name.data.str = "SensorFW Humidity sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_RELATIVE_HUMIDITY;
             sensor_info.typeAsString.data.str = "android.sensor.relative_humidity";
@@ -394,7 +394,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_LIGHT:
             sensor_info.name.data.str = "SensorFW Light sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_LIGHT;
             sensor_info.typeAsString.data.str = "android.sensor.light";
@@ -420,7 +420,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_MAGNETIC_FIELD:
             sensor_info.name.data.str = "SensorFW 3-axis Magnetic field sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_MAGNETIC_FIELD;
             sensor_info.typeAsString.data.str = "android.sensor.magnetic_field";
@@ -446,7 +446,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_MAGNETIC_FIELD_UNCALIBRATED:
             sensor_info.name.data.str = "SensorFW 3-axis Magnetic field sensor (uncalibrated)";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_MAGNETIC_FIELD_UNCALIBRATED;
             sensor_info.typeAsString.data.str = "android.sensor.magnetic_field_uncalibrated";
@@ -472,7 +472,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_DEVICE_ORIENTATION:
             sensor_info.name.data.str = "SensorFW Device Orientation sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_DEVICE_ORIENTATION;
             sensor_info.typeAsString.data.str = "android.sensor.device_orientation";
@@ -498,7 +498,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_PRESSURE:
             sensor_info.name.data.str = "SensorFW Pressure sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_PRESSURE;
             sensor_info.typeAsString.data.str = "android.sensor.pressure";
@@ -524,7 +524,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_PROXIMITY:
             sensor_info.name.data.str = "SensorFW Proximity sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_PROXIMITY;
             sensor_info.typeAsString.data.str = "android.sensor.proximity";
@@ -551,7 +551,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_STEPCOUNTER:
             sensor_info.name.data.str = "SensorFW Step counter sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_STEP_COUNTER;
             sensor_info.typeAsString.data.str = "android.sensor.step_counter";
@@ -577,7 +577,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             break;
         case ID_TEMPERATURE:
             sensor_info.name.data.str = "SensorFW Ambient Temperature sensor";
-            sensor_info.vendor.data.str = kWaydroidVendor;
+            sensor_info.vendor.data.str = kAndromedaVendor;
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_AMBIENT_TEMPERATURE;
             sensor_info.typeAsString.data.str = "android.sensor.ambient_temperature";
@@ -735,4 +735,4 @@ void Sensors::cleanup() {
 
 }  // namespace implementation
 }  // namespace sensors
-}  // namespace waydroid
+}  // namespace andromeda

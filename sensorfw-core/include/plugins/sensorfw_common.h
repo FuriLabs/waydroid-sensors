@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -31,7 +31,7 @@
 #pragma once
 
 class SocketReader;
-namespace waydroid {
+namespace andromeda {
 namespace core {
 class Sensorfw {
 public:

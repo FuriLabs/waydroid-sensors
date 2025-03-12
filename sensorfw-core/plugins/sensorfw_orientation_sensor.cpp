@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](PoseData){};
 }
 
-waydroid::core::SensorfwOrientationSensor::SensorfwOrientationSensor(
+andromeda::core::SensorfwOrientationSensor::SensorfwOrientationSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Orientation", PluginType::ORIENTATION),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwOrientationSensor::register_orientation_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwOrientationSensor::register_orientation_handler(
     OrientationHandler const &handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwOrientationSensor::r
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwOrientationSensor::enable_orientation_events()
+void andromeda::core::SensorfwOrientationSensor::enable_orientation_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwOrientationSensor::enable_orientation_events()
         }).get();
 }
 
-void waydroid::core::SensorfwOrientationSensor::disable_orientation_events()
+void andromeda::core::SensorfwOrientationSensor::disable_orientation_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwOrientationSensor::disable_orientation_events()
         }).get();
 }
 
-void waydroid::core::SensorfwOrientationSensor::data_recived_impl()
+void andromeda::core::SensorfwOrientationSensor::data_recived_impl()
 {
     std::vector<PoseData> values;
     if(!m_socket->read<PoseData>(values))

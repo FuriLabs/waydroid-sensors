@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](TimedUnsigned){};
 }
 
-waydroid::core::SensorfwStepcounterSensor::SensorfwStepcounterSensor(
+andromeda::core::SensorfwStepcounterSensor::SensorfwStepcounterSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Stepcounter", PluginType::STEPCOUNTER),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwStepcounterSensor::register_stepcounter_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwStepcounterSensor::register_stepcounter_handler(
     StepcounterHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwStepcounterSensor::r
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwStepcounterSensor::enable_stepcounter_events()
+void andromeda::core::SensorfwStepcounterSensor::enable_stepcounter_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwStepcounterSensor::enable_stepcounter_events()
         }).get();
 }
 
-void waydroid::core::SensorfwStepcounterSensor::disable_stepcounter_events()
+void andromeda::core::SensorfwStepcounterSensor::disable_stepcounter_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwStepcounterSensor::disable_stepcounter_events()
         }).get();
 }
 
-void waydroid::core::SensorfwStepcounterSensor::data_recived_impl()
+void andromeda::core::SensorfwStepcounterSensor::data_recived_impl()
 {
     std::vector<TimedUnsigned> values;
     if(!m_socket->read<TimedUnsigned>(values))

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2020 UBports foundation
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -27,14 +27,14 @@ namespace
 auto const null_handler = [](TapData){};
 }
 
-waydroid::core::SensorfwTapSensor::SensorfwTapSensor(
+andromeda::core::SensorfwTapSensor::SensorfwTapSensor(
     std::string const &dbus_bus_address)
     : Sensorfw(dbus_bus_address, "Tap", PluginType::TAP),
       handler{null_handler}
 {
 }
 
-waydroid::core::HandlerRegistration waydroid::core::SensorfwTapSensor::register_tap_handler(
+andromeda::core::HandlerRegistration andromeda::core::SensorfwTapSensor::register_tap_handler(
     TapHandler const& handler)
 {
     return EventLoopHandlerRegistration{
@@ -43,7 +43,7 @@ waydroid::core::HandlerRegistration waydroid::core::SensorfwTapSensor::register_
         [this]{ this->handler = null_handler; }};
 }
 
-void waydroid::core::SensorfwTapSensor::enable_tap_events()
+void andromeda::core::SensorfwTapSensor::enable_tap_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -52,7 +52,7 @@ void waydroid::core::SensorfwTapSensor::enable_tap_events()
         }).get();
 }
 
-void waydroid::core::SensorfwTapSensor::disable_tap_events()
+void andromeda::core::SensorfwTapSensor::disable_tap_events()
 {
     dbus_event_loop.enqueue(
         [this]
@@ -61,7 +61,7 @@ void waydroid::core::SensorfwTapSensor::disable_tap_events()
         }).get();
 }
 
-void waydroid::core::SensorfwTapSensor::data_recived_impl()
+void andromeda::core::SensorfwTapSensor::data_recived_impl()
 {
     std::vector<TapData> values;
     if(!m_socket->read<TapData>(values))

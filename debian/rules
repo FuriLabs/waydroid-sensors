@@ -4,4 +4,4 @@
 	dh $@ --parallel --buildsystem cmake
 
 override_dh_installsystemd:
-	dh_installsystemd -pwaydroid-sensors --name=waydroid-sensors waydroid-sensors.service
+	dh_installsystemd -pandromeda-sensors --name=andromeda-sensors andromeda-sensors.service

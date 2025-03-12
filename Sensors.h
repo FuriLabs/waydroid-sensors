@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Waydroid Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -26,13 +26,13 @@
 #include "hybrisbindertypes.h"
 #include "SensorFW.h"
 
-using waydroid::SensorFW;
+using andromeda::SensorFW;
 
-namespace waydroid {
+namespace andromeda {
 namespace sensors {
 namespace implementation {
 
-constexpr char kWaydroidVendor[] = "Android App Container";
+constexpr char kAndromedaVendor[] = "Android App Container";
 
 typedef struct SensorDevice {
     SensorFW *mSensorFWDevice;
@@ -66,6 +66,6 @@ private:
 
 }  // namespace implementation
 }  // namespace sensors
-}  // namespace waydroid
+}  // namespace andromeda
 
 #endif  // ANDBOX_HARDWARE_SENSORS_H_

@@ -32,7 +32,7 @@ namespace andromeda {
 namespace sensors {
 namespace implementation {
 
-constexpr char kAndromedaVendor[] = "Android App Container";
+constexpr char kAndromedaVendor[] = "Andromeda";
 
 typedef struct SensorDevice {
     SensorFW *mSensorFWDevice;

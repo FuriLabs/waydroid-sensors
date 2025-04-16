@@ -19,6 +19,9 @@
 #include "SensorFW.h"
 #include <gio/gio.h>
 #include <iostream>
+#include <cmath>
+
+#define GRAVITY_RECIPROCAL_THOUSANDS 101.971621298
 
 namespace andromeda {
 
@@ -358,9 +361,11 @@ int SensorFW::GetAccelerometerEvent(uint64_t *ts, int *x, int *y, int *z) {
         return -EPERM;
 
     *ts = data->accelerometer_event.timestamp_;
-    *x = data->accelerometer_event.x_;
-    *y = data->accelerometer_event.y_;
-    *z = data->accelerometer_event.z_;
+
+    /* from mili-g to m/s^2 */
+    *x = data->accelerometer_event.x_ / GRAVITY_RECIPROCAL_THOUSANDS;
+    *y = data->accelerometer_event.y_ / GRAVITY_RECIPROCAL_THOUSANDS;
+    *z = data->accelerometer_event.z_ / GRAVITY_RECIPROCAL_THOUSANDS;
 
     return 0;
 }
@@ -370,9 +375,11 @@ int SensorFW::GetGyroscopeEvent(uint64_t *ts, int *x, int *y, int *z) {
         return -EPERM;
 
     *ts = data->gyroscope_event.timestamp_;
-    *x = data->gyroscope_event.x_;
-    *y = data->gyroscope_event.y_;
-    *z = data->gyroscope_event.z_;
+
+    /* from mdeg/s to rad/s */
+    *x = data->gyroscope_event.x_ * (M_PI / 180000.0f);
+    *y = data->gyroscope_event.y_ * (M_PI / 180000.0f);
+    *z = data->gyroscope_event.z_ * (M_PI / 180000.0f);
 
     return 0;
 }
@@ -404,12 +411,14 @@ int SensorFW::GetMagnetometerEvent(uint64_t *ts, int *x, int *y, int *z,
         return -EPERM;
 
     *ts = data->magnetometer_event.timestamp_;
-    *x = data->magnetometer_event.x_;
-    *y = data->magnetometer_event.y_;
-    *z = data->magnetometer_event.z_;
-    *rx = data->magnetometer_event.rx_;
-    *ry = data->magnetometer_event.ry_;
-    *rz = data->magnetometer_event.rz_;
+
+    /* from nT to uT */
+    *x = data->magnetometer_event.x_ / 1000.00f;
+    *y = data->magnetometer_event.y_ / 1000.00f;
+    *z = data->magnetometer_event.z_ / 1000.00f;
+    *rx = data->magnetometer_event.rx_ / 1000.00f;
+    *ry = data->magnetometer_event.ry_ / 1000.00f;
+    *rz = data->magnetometer_event.rz_ / 1000.00f;
     *level = data->magnetometer_event.level_;
 
     return 0;
@@ -444,7 +453,9 @@ int SensorFW::GetPressureEvent(uint64_t *ts, unsigned *value) {
         return -EPERM;
 
     *ts = data->pressure_event.timestamp_;
-    *value = data->pressure_event.value_;
+
+    /* from Pa to hPa */
+    *value = data->pressure_event.value_ / 100;
 
     return 0;
 }

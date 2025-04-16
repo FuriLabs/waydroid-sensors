@@ -34,7 +34,7 @@
 
 namespace andromeda {
 
-#define MAX_NUM_SENSORS 12
+#define MAX_NUM_SENSORS 13
 
 #define SUPPORTED_SENSORS  ((1<<MAX_NUM_SENSORS)-1)
 
@@ -51,6 +51,7 @@ namespace andromeda {
 #define  ID_STEPCOUNTER                 (ID_BASE+9)
 #define  ID_TEMPERATURE                 (ID_BASE+10)
 #define  ID_LINEAR_ACCELERATION         (ID_BASE+11)
+#define  ID_GRAVITY                     (ID_BASE+12)
 
 #define  SENSORS_ACCELEROMETER                (1 << ID_ACCELEROMETER)
 #define  SENSORS_GYROSCOPE                    (1 << ID_GYROSCOPE)
@@ -64,6 +65,7 @@ namespace andromeda {
 #define  SENSORS_STEPCOUNTER                  (1 << ID_STEPCOUNTER)
 #define  SENSORS_TEMPERATURE                  (1 << ID_TEMPERATURE)
 #define  SENSORS_LINEAR_ACCELERATION          (1 << ID_LINEAR_ACCELERATION)
+#define  SENSORS_GRAVITY                      (1 << ID_GRAVITY)
 
 #define  ID_CHECK(x)  ((unsigned)((x) - ID_BASE) < MAX_NUM_SENSORS)
 
@@ -79,7 +81,8 @@ namespace andromeda {
     SENSOR_(PROXIMITY,"proximity") \
     SENSOR_(STEPCOUNTER, "stepcounter") \
     SENSOR_(TEMPERATURE,"temperature") \
-    SENSOR_(LINEAR_ACCELERATION, "linear-acceleration")
+    SENSOR_(LINEAR_ACCELERATION, "linear-acceleration") \
+    SENSOR_(GRAVITY, "gravity")
 
 static const struct {
     const char*  name;

@@ -95,10 +95,12 @@ SensorFW::SensorFW()
         data->accelerometer_sensor = std::make_shared<andromeda::core::SensorfwAccelerometerSensor>(dbus_address);
         data->sensorAvailable[ID_ACCELEROMETER] = TRUE;
         data->sensorAvailable[ID_LINEAR_ACCELERATION] = TRUE;
+        data->sensorAvailable[ID_GRAVITY] = TRUE;
     } catch (std::exception const &e) {
         GINFO("Failed to create SensorfwAccelerometerSensor: %s", e.what());
         data->sensorAvailable[ID_ACCELEROMETER] = FALSE;
         data->sensorAvailable[ID_LINEAR_ACCELERATION] = FALSE;
+        data->sensorAvailable[ID_GRAVITY] = FALSE;
     }
     try {
         data->gyroscope_sensor = std::make_shared<andromeda::core::SensorfwGyroscopeSensor>(dbus_address);
@@ -175,6 +177,7 @@ void SensorFW::RegisterSensors(sensor_event_cb_t cb, void *userdata) {
                     this->data->accelerometer_event = value;
                     cb(userdata, ID_ACCELEROMETER);
                     cb(userdata, ID_LINEAR_ACCELERATION);
+                    cb(userdata, ID_GRAVITY);
                 }));
     }
     if (data->sensorAvailable[ID_GYROSCOPE]) {
@@ -276,6 +279,9 @@ int SensorFW::EnableSensorEvents(int id) {
     case ID_LINEAR_ACCELERATION:
         data->accelerometer_sensor->enable_accelerometer_events();
         break;
+    case ID_GRAVITY:
+        data->accelerometer_sensor->enable_accelerometer_events();
+        break;
     case ID_GYROSCOPE:
         data->gyroscope_sensor->enable_gyroscope_events();
         break;
@@ -324,6 +330,9 @@ int SensorFW::DisableSensorEvents(int id) {
         data->accelerometer_sensor->disable_accelerometer_events();
         break;
     case ID_LINEAR_ACCELERATION:
+        data->accelerometer_sensor->disable_accelerometer_events();
+        break;
+    case ID_GRAVITY:
         data->accelerometer_sensor->disable_accelerometer_events();
         break;
     case ID_GYROSCOPE:

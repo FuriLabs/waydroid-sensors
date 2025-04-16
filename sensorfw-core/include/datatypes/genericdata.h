@@ -67,9 +67,9 @@ public:
      */
     TimedXyzData(const uint64_t& timestamp, int x, int y, int z) : TimedData(timestamp), x_(x), y_(y), z_(z) {}
 
-    int x_; /**< X value */
-    int y_; /**< Y value */
-    int z_; /**< Z value */
+    float x_; /**< X value */
+    float y_; /**< Y value */
+    float z_; /**< Z value */
 };
 
 #endif // GENERICDATA_H

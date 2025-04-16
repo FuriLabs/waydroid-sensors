@@ -33,4 +33,4 @@ target_include_directories(andromeda-sensors PUBLIC
     sensorfw-core/include
 )
 
-install(TARGETS andromeda-sensors RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+install(TARGETS andromeda-sensors RUNTIME DESTINATION libexec)

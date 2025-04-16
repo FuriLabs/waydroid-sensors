@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Andromeda Project.
+ * Copyright © 2025 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Erfan Abdi <erfangplus@gmail.com>
+ *              Bardia Moshiri <bardia@furilabs.com>
  */
 
 #include "Sensors.h"
@@ -30,30 +31,26 @@ using andromeda::sensors::implementation::Sensors;
 #define DEFAULT_NAME    "default"
 
 typedef struct app {
-    GMainLoop* loop;
-    GBinderServiceManager* sm;
-    GBinderLocalObject* obj;
+    GMainLoop *loop;
+    GBinderServiceManager *sm;
+    GBinderLocalObject *obj;
     int ret;
     Sensors *service;
 } App;
 
 typedef struct response {
-    GBinderRemoteRequest* req;
-    GBinderLocalReply* reply;
+    GBinderRemoteRequest *req;
+    GBinderLocalReply *reply;
     int maxCount;
     Sensors *service;
 } Response;
 
-static const char logtag[] = "andromeda-sensors-daemon";
-
-static
-gboolean
-app_signal(
-    gpointer user_data)
+static gboolean
+app_signal(gpointer user_data)
 {
-    App* app = (App*) user_data;
+    App *app = (App *) user_data;
 
-    GINFO("Caught signal, shutting down...");
+    g_debug("Caught signal, shutting down...");
     app->service->killLoops();
     g_main_loop_quit(app->loop);
     return G_SOURCE_CONTINUE;
@@ -63,14 +60,10 @@ app_signal(
      sensors_write_string_with_parent(writer, &ptr->field, index, \
         (off) + ((guint8*)(&ptr->field) - (guint8*)ptr))
 
-static
-inline
-void
-sensors_write_string_with_parent(
-    GBinderWriter* writer,
-    const GBinderHidlString* str,
-    guint32 index,
-    guint32 offset)
+static inline void
+sensors_write_string_with_parent(GBinderWriter *writer,
+                                 const GBinderHidlString *str,
+                                 guint32 index, guint32 offset)
 {
     GBinderParent parent;
 
@@ -82,13 +75,10 @@ sensors_write_string_with_parent(
         str->len + 1, &parent);
 }
 
-static
-void
-sensors_write_info_strings(
-    GBinderWriter* w,
-    const sensor_t* sensor,
-    guint idx,
-    guint i)
+static void
+sensors_write_info_strings(GBinderWriter *w,
+                           const sensor_t *sensor,
+                           guint idx, guint i)
 {
     const guint off = sizeof(*sensor) * i;
 
@@ -99,12 +89,10 @@ sensors_write_info_strings(
     sensors_write_hidl_string_data(w, sensor, requiredPermission, idx, off);
 }
 
-static
-gboolean
-app_async_resp(
-    gpointer user_data)
+static gboolean
+app_async_resp(gpointer user_data)
 {
-    Response* resp = (Response*)user_data;
+    Response *resp = (Response *) user_data;
     int err = 0;
     GBinderWriter writer;
 
@@ -125,36 +113,32 @@ app_async_resp(
     return G_SOURCE_REMOVE;
 }
 
-static
-void
-app_async_free(
-    gpointer user_data)
+static void
+app_async_free(gpointer user_data)
 {
-    Response* resp = (Response*)user_data;
+    Response *resp = (Response *) user_data;
 
     gbinder_local_reply_unref(resp->reply);
     gbinder_remote_request_unref(resp->req);
     g_free(resp);
 }
 
-static
-GBinderLocalReply*
-app_reply(
-    GBinderLocalObject* obj,
-    GBinderRemoteRequest* req,
-    guint code,
-    guint flags,
-    int* status,
-    void* user_data)
+static GBinderLocalReply *
+app_reply(GBinderLocalObject *obj,
+          GBinderRemoteRequest *req,
+          guint code,
+          guint flags,
+          int *status,
+          void *user_data)
 {
-    App* app = (App*) user_data;
+    App *app = (App *) user_data;
     GBinderLocalReply *reply = NULL;
     GBinderReader reader;
     GBinderWriter writer;
 
     gbinder_remote_request_init_reader(req, &reader);
     if (code == GET_SENSORS_LIST) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
@@ -162,7 +146,7 @@ app_reply(
             gbinder_local_reply_append_int32(reply, GBINDER_STATUS_OK);
             *status = GBINDER_STATUS_OK;
 
-            sensor_t* sensors;
+            sensor_t *sensors;
             std::vector<sensor_t> sensors_vec = app->service->getSensorsList();
             int sensors_len = sensors_vec.size();
 
@@ -172,7 +156,7 @@ app_reply(
             GBinderParent vec_parent;
             GBinderHidlVec *vec = gbinder_writer_new0(&writer, GBinderHidlVec);
             const gsize total = sensors_len * sizeof(*sensors);
-            sensors = (sensor_t*) gbinder_writer_malloc0(&writer, total);
+            sensors = (sensor_t *) gbinder_writer_malloc0(&writer, total);
 
             /* Fill in the vector descriptor */
             if (sensors) {
@@ -193,10 +177,10 @@ app_reply(
             for (int i = 0; i < sensors_len; i++)
                 sensors_write_info_strings(&writer, sensors + i, index, i);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == SET_OPERATION_MODE) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             gint32 tmp = 0;
@@ -209,10 +193,10 @@ app_reply(
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == ACTIVATE) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int handle = 0;
@@ -228,10 +212,10 @@ app_reply(
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, app->service->activate(handle, enabled == TRUE));
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == POLL) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int maxCount = 0;
@@ -248,14 +232,14 @@ app_reply(
             resp->reply = reply;
             resp->req = gbinder_remote_request_ref(req);
             g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, app_async_resp,
-                                resp, app_async_free);
+                            resp, app_async_free);
             gbinder_remote_request_block(resp->req);
             return NULL;
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == BATCH) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             gint32 tmp = 0;
@@ -272,10 +256,10 @@ app_reply(
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_OK);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == FLUSH) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int handle = 0;
@@ -289,10 +273,10 @@ app_reply(
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, app->service->flush(handle));
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == INJECT_SENSOR_DATA) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
@@ -303,10 +287,10 @@ app_reply(
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == REGISTER_DIRECT_CHANNEL) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
@@ -318,10 +302,10 @@ app_reply(
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
             gbinder_writer_append_int32(&writer, -1);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == UNREGISTER_DIRECT_CHANNEL) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int tmp = 0;
@@ -335,10 +319,10 @@ app_reply(
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_OK);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     } else if (code == CONFIG_DIRECT_REPORT) {
-        const char* iface = gbinder_remote_request_interface(req);
+        const char *iface = gbinder_remote_request_interface(req);
 
         if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
@@ -350,57 +334,50 @@ app_reply(
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
             gbinder_writer_append_int32(&writer, -1);
         } else {
-            GDEBUG("Unexpected interface \"%s\"", iface);
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     }
 
     return reply;
 }
 
-static
-void
-app_add_service_done(
-    GBinderServiceManager* sm,
-    int status,
-    void* user_data)
+static void
+app_add_service_done(GBinderServiceManager *sm,
+                     int status, void *user_data)
 {
-    App* app = (App*) user_data;
+    App *app = (App *) user_data;
 
     if (status == GBINDER_STATUS_OK) {
-        printf("Added \"%s\"\n", DEFAULT_NAME);
+        g_debug("Added \"%s\"", DEFAULT_NAME);
         app->service->reinitialize();
         app->ret = RET_OK;
     } else {
-        GERR("Failed to add \"%s\" (%d)", DEFAULT_NAME, status);
+        g_warning("Failed to add \"%s\" (%d)", DEFAULT_NAME, status);
         g_main_loop_quit(app->loop);
     }
 }
 
-static
-void
-app_sm_presence_handler(
-    GBinderServiceManager* sm,
-    void* user_data)
+static void
+app_sm_presence_handler(GBinderServiceManager *sm,
+                        void *user_data)
 {
-    App* app = (App*) user_data;
+    App *app = (App *) user_data;
 
     if (gbinder_servicemanager_is_present(app->sm)) {
-        GINFO("Service manager has reappeared");
+        g_debug("Service manager has reappeared");
         gbinder_servicemanager_add_service(app->sm, DEFAULT_NAME, app->obj,
             app_add_service_done, app);
     } else {
-        GINFO("Service manager has died");
+        g_debug("Service manager has died");
         app->service->cleanup();
         app->service->killLoops();
     }
 }
 
-static
-void
-app_run(
-   App* app)
+static void
+app_run(App *app)
 {
-    const char* name = DEFAULT_NAME;
+    const char *name = DEFAULT_NAME;
     guint sigtrm = g_unix_signal_add(SIGTERM, app_signal, app);
     guint sigint = g_unix_signal_add(SIGINT, app_signal, app);
     gulong presence_id = gbinder_servicemanager_add_presence_handler
@@ -411,25 +388,25 @@ app_run(
     gbinder_servicemanager_add_service(app->sm, DEFAULT_NAME, app->obj,
         app_add_service_done, app);
 
-    GINFO("Andromeda Sensors HAL service ready.");
+    g_debug("Andromeda Sensors HAL service ready.");
 
     g_main_loop_run(app->loop);
 
-    if (sigtrm) g_source_remove(sigtrm);
-    if (sigint) g_source_remove(sigint);
+    if (sigtrm)
+        g_source_remove(sigtrm);
+    if (sigint)
+        g_source_remove(sigint);
+
     gbinder_servicemanager_remove_handler(app->sm, presence_id);
     g_main_loop_unref(app->loop);
     app->loop = NULL;
 }
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
-    const char* device;
+    const char *device;
     App app;
-
-    gutil_log_timestamp = FALSE;
-    gutil_log_set_type(GLOG_TYPE_STDERR, logtag);
-    gutil_log_default.level = GLOG_LEVEL_DEFAULT;
 
     if (argc < 2)
         device = DEFAULT_DEVICE;

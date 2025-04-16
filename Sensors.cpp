@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Andromeda Project.
+ * Copyright © 2025 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Erfan Abdi <erfangplus@gmail.com>
+ *              Bardia Moshiri <bardia@furilabs.com>
  */
 
 #include "Sensors.h"
@@ -25,7 +26,9 @@ namespace sensors {
 namespace implementation {
 
 /* return the current time in nanoseconds */
-static int64_t now_ns(void) {
+static int64_t
+now_ns(void)
+{
     struct timespec ts;
     clock_gettime(CLOCK_BOOTTIME, &ts);
     return (int64_t)ts.tv_sec * 1000000000 + ts.tv_nsec;
@@ -37,8 +40,9 @@ static int64_t now_ns(void) {
  *
  * Note: The device's lock must be acquired.
  */
-static int sensor_device_pick_pending_event_locked(SensorDevice *d,
-                                                   sensors_event_t* event)
+static int
+sensor_device_pick_pending_event_locked(SensorDevice *d,
+                                        sensors_event_t* event)
 {
     uint32_t mask = SUPPORTED_SENSORS & d->pendingSensors;
     if (mask) {
@@ -70,7 +74,7 @@ static int sensor_device_pick_pending_event_locked(SensorDevice *d,
 
         return i;
     }
-    GERR("No sensor to return!!! pendingSensors=0x%08x", d->pendingSensors);
+    g_warning("No sensor to return!!! pendingSensors=0x%08x", d->pendingSensors);
     // we may end-up in a busy loop, slow things down, just in case.
     usleep(1000);
     return -EINVAL;
@@ -85,7 +89,8 @@ static int sensor_device_pick_pending_event_locked(SensorDevice *d,
  *       will still be held on return. However, the function releases the
  *       lock temporarily during the blocking wait.
  */
-static void sensor_event_cb(void *userdata, int id)
+static void
+sensor_event_cb(void *userdata, int id)
 {
     SensorDevice* dev = (SensorDevice*) userdata;
     // Accumulate pending events into |events| and |new_sensors| mask
@@ -277,10 +282,10 @@ static void sensor_event_cb(void *userdata, int id)
             dev->timeStart  = now;
             dev->timeOffset = dev->timeStart - t;
         }
+
         t += dev->timeOffset;
-        if (t > now) {
+        if (t > now)
             t = now;
-        }
 
         while (new_sensors) {
             uint32_t i = 31 - __builtin_clz(new_sensors);
@@ -311,20 +316,22 @@ Sensors::Sensors()
     mSensorDevice->loop = g_main_loop_new(NULL, TRUE);
 }
 
-std::vector<sensor_t> Sensors::getSensorsList() {
+std::vector<sensor_t>
+Sensors::getSensorsList()
+{
     std::vector<sensor_t> out_vector;
 
     int sensors_count = 0;
-    
+
     for (int id = 0; id < MAX_NUM_SENSORS; id++) {
-        if(!mSensorDevice->mSensorFWDevice->IsSensorAvailable(id)) {
-            GERR("Sensor %s Not found!", andromeda::_SensorIdToName(id));
+        if (!mSensorDevice->mSensorFWDevice->IsSensorAvailable(id)) {
+            g_warning("Sensor %s not found!", andromeda::_SensorIdToName(id));
             continue;
         }
+
         sensor_t sensor_info;
         sensor_info.handle = id;
-        switch (id)
-        {
+        switch (id) {
         case ID_ACCELEROMETER:
             sensor_info.name.data.str = "SensorFW 3-axis Accelerometer";
             sensor_info.vendor.data.str = kAndromedaVendor;
@@ -661,7 +668,7 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             sensor_info.typeAsString.len = strlen(sensor_info.typeAsString.data.str);
             sensor_info.typeAsString.owns_buffer = TRUE;
             sensor_info.requiredPermission.len = strlen(sensor_info.requiredPermission.data.str);
-            sensor_info.requiredPermission.owns_buffer = TRUE;    
+            sensor_info.requiredPermission.owns_buffer = TRUE;
             out_vector.push_back(sensor_info);
             break;
         default:
@@ -672,12 +679,12 @@ std::vector<sensor_t> Sensors::getSensorsList() {
     return out_vector;
 }
 
-int Sensors::activate(
-        int32_t handle, bool enabled) {
-
+int
+Sensors::activate(int32_t handle, bool enabled)
+{
     /* Sanity check */
     if (!ID_CHECK(handle)) {
-        GERR("activate: bad handle ID: %d", handle);
+        g_warning("activate: bad handle ID: %d", handle);
         return RESULT_BAD_VALUE;
     }
 
@@ -702,7 +709,9 @@ int Sensors::activate(
     return RESULT_OK;
 }
 
-std::vector<sensors_event_t> Sensors::poll(int32_t maxCount, int *err_out) {
+std::vector<sensors_event_t>
+Sensors::poll(int32_t maxCount, int *err_out)
+{
     std::vector<sensors_event_t> out;
     int err = 0;
 
@@ -720,14 +729,13 @@ std::vector<sensors_event_t> Sensors::poll(int32_t maxCount, int *err_out) {
 
         /* Now read as many pending events as needed. */
         for (int i = 0; i < bufferSize; i++)  {
-            if (!mSensorDevice->pendingSensors) {
+            if (!mSensorDevice->pendingSensors)
                 break;
-            }
+
             int ret = sensor_device_pick_pending_event_locked(mSensorDevice, &out[i]);
             if (ret < 0) {
-                if (!err) {
+                if (!err)
                     err = ret;
-                }
                 break;
             }
             err++;
@@ -747,18 +755,19 @@ out:
     return out;
 }
 
-int Sensors::flush(int32_t handle) {
+int
+Sensors::flush(int32_t handle)
+{
     /* Sanity check */
     if (!ID_CHECK(handle)) {
-        GERR("bad handle ID");
+        g_warning("bad handle ID");
         return RESULT_BAD_VALUE;
     }
 
     pthread_mutex_lock(&mSensorDevice->lock);
     if ((mSensorDevice->pendingSensors & (1U << handle)) &&
-        mSensorDevice->sensors[handle].sensorType == SENSOR_TYPE_META_DATA)
-    {
-        // A 'flush' operation is already pending. Just increment the count.
+        mSensorDevice->sensors[handle].sensorType == SENSOR_TYPE_META_DATA) {
+        /* A 'flush' operation is already pending. Just increment the count. */
         (mSensorDevice->flush_count[handle])++;
     } else {
         mSensorDevice->flush_count[handle] = 0;
@@ -769,31 +778,35 @@ int Sensors::flush(int32_t handle) {
         mSensorDevice->pendingSensors |= (1U << handle);
     }
     pthread_mutex_unlock(&mSensorDevice->lock);
-    
+
     return RESULT_OK;
 }
 
-void Sensors::killLoops() {
+void
+Sensors::killLoops()
+{
     if (mSensorDevice->waiting_for_data)
         g_main_loop_quit(mSensorDevice->loop);
 }
 
-void Sensors::reinitialize() {
+void
+Sensors::reinitialize()
+{
     if (mSensorDevice && mSensorDevice->mSensorFWDevice) {
         mSensorDevice->mSensorFWDevice->RegisterSensors(sensor_event_cb, mSensorDevice);
 
         for (int id = 0; id < MAX_NUM_SENSORS; id++) {
-            if (mSensorDevice->active_sensors & (1U << id)) {
+            if (mSensorDevice->active_sensors & (1U << id))
                 mSensorDevice->mSensorFWDevice->EnableSensorEvents(id);
-            }
         }
     }
 }
 
-void Sensors::cleanup() {
-    if (mSensorDevice && mSensorDevice->mSensorFWDevice) {
+void
+Sensors::cleanup()
+{
+    if (mSensorDevice && mSensorDevice->mSensorFWDevice)
         mSensorDevice->mSensorFWDevice->cleanup();
-    }
 }
 
 }  // namespace implementation

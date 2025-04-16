@@ -138,12 +138,12 @@ struct SensorFW {
     int EnableSensorEvents(int id);
     int DisableSensorEvents(int id);
 
-    int GetAccelerometerEvent(uint64_t *ts, int *x, int *y, int *z);
-    int GetGyroscopeEvent(uint64_t *ts, int *x, int *y, int *z);
+    int GetAccelerometerEvent(uint64_t *ts, float *x, float *y, float *z);
+    int GetGyroscopeEvent(uint64_t *ts, float *x, float *y, float *z);
     int GetHumidityEvent(uint64_t *ts, unsigned *value);
     int GetLightEvent(uint64_t *ts, unsigned *value);
-    int GetMagnetometerEvent(uint64_t *ts, int *x, int *y, int *z,
-        int *rx, int *ry, int *rz, int* level);
+    int GetMagnetometerEvent(uint64_t *ts, float *x, float *y, float *z,
+                             float *rx, float *ry, float *rz);
     int GetOrientationEvent(uint64_t *ts, int *degree);
     int GetPressureEvent(uint64_t *ts, unsigned *value);
     int GetProximityEvent(uint64_t *ts, unsigned *value, bool *isNear);

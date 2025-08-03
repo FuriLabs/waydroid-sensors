@@ -316,6 +316,26 @@ Sensors::Sensors()
     mSensorDevice->loop = g_main_loop_new(NULL, TRUE);
 }
 
+Sensors::~Sensors() {
+    cleanup();
+
+    if (mSensorDevice) {
+        if (mSensorDevice->mSensorFWDevice) {
+            delete mSensorDevice->mSensorFWDevice;
+            mSensorDevice->mSensorFWDevice = nullptr;
+        }
+
+        if (mSensorDevice->loop) {
+            g_main_loop_unref(mSensorDevice->loop);
+            mSensorDevice->loop = nullptr;
+        }
+
+        pthread_mutex_destroy(&mSensorDevice->lock);
+        free(mSensorDevice);
+        mSensorDevice = nullptr;
+    }
+}
+
 std::vector<sensor_t>
 Sensors::getSensorsList()
 {

@@ -138,6 +138,7 @@ struct SensorFW {
     void waitForSensorfwService();
 
     SensorFW();
+    ~SensorFW();
 
     void RegisterSensors(sensor_event_cb_t cb, void *userdata);
     bool IsSensorAvailable(int id);

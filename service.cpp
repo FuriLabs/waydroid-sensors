@@ -51,8 +51,15 @@ app_signal(gpointer user_data)
     App *app = (App *) user_data;
 
     g_debug("Caught signal, shutting down...");
-    app->service->killLoops();
-    g_main_loop_quit(app->loop);
+
+    if (app->service) {
+        app->service->cleanup();
+        app->service->killLoops();
+    }
+
+    if (app->loop)
+        g_main_loop_quit(app->loop);
+
     return G_SOURCE_CONTINUE;
 }
 
@@ -97,17 +104,26 @@ app_async_resp(gpointer user_data)
     GBinderWriter writer;
 
     std::vector<sensors_event_t> event_vec = resp->service->poll(resp->maxCount, &err);
-    sensors_event_t *event = &event_vec[0];
-    int event_len = event_vec.size();
 
     gbinder_local_reply_init_writer(resp->reply, &writer);
     gbinder_writer_append_int32(&writer, err);
-    gbinder_writer_append_hidl_vec(&writer, (void *)event, event_len, sizeof(sensors_event_t));
+
+    if (!event_vec.empty()) {
+        sensors_event_t *event = &event_vec[0];
+        int event_len = event_vec.size();
+        gbinder_writer_append_hidl_vec(&writer, (void *)event, event_len, sizeof(sensors_event_t));
+    } else {
+        gbinder_writer_append_hidl_vec(&writer, nullptr, 0, sizeof(sensors_event_t));
+    }
 
     std::vector<sensor_t> sensors_vec;
-    sensor_t *sensors = &sensors_vec[0];
-    int sensors_len = sensors_vec.size();
-    gbinder_writer_append_hidl_vec(&writer, (void *)sensors, sensors_len, sizeof(sensor_t));
+    if (!sensors_vec.empty()) {
+        sensor_t *sensors = &sensors_vec[0];
+        int sensors_len = sensors_vec.size();
+        gbinder_writer_append_hidl_vec(&writer, (void *)sensors, sensors_len, sizeof(sensor_t));
+    } else {
+        gbinder_writer_append_hidl_vec(&writer, nullptr, 0, sizeof(sensor_t));
+    }
 
     gbinder_remote_request_complete(resp->req, resp->reply, 0);
     return G_SOURCE_REMOVE;
@@ -402,5 +418,9 @@ main(int argc, char* argv[])
         gbinder_local_object_unref(app.obj);
         gbinder_servicemanager_unref(app.sm);
     }
+
+    delete app.service;
+    app.service = nullptr;
+
     return app.ret;
 }

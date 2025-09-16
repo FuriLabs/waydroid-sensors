@@ -356,7 +356,7 @@ int SensorFW::DisableSensorEvents(int id) {
     return 0;
 }
 
-int SensorFW::GetAccelerometerEvent(uint64_t *ts, float *x, float *y, float *z) {
+int SensorFW::GetAccelerometerEvent(uint64_t *ts, int *x, int *y, int *z) {
     if (!IsSensorEventEnable(ID_ACCELEROMETER))
         return -EPERM;
 
@@ -370,7 +370,7 @@ int SensorFW::GetAccelerometerEvent(uint64_t *ts, float *x, float *y, float *z) 
     return 0;
 }
 
-int SensorFW::GetGyroscopeEvent(uint64_t *ts, float *x, float *y, float *z) {
+int SensorFW::GetGyroscopeEvent(uint64_t *ts, int *x, int *y, int *z) {
     if (!IsSensorEventEnable(ID_GYROSCOPE))
         return -EPERM;
 
@@ -404,8 +404,8 @@ int SensorFW::GetLightEvent(uint64_t *ts, unsigned *value) {
     return 0;
 }
 
-int SensorFW::GetMagnetometerEvent(uint64_t *ts, float *x, float *y, float *z,
-                                   float *rx, float *ry, float *rz) {
+int SensorFW::GetMagnetometerEvent(uint64_t *ts, int *x, int *y, int *z,
+        int *rx, int *ry, int *rz, int *level) {
     if (!IsSensorEventEnable(ID_MAGNETIC_FIELD) &&
         !IsSensorEventEnable(ID_MAGNETIC_FIELD_UNCALIBRATED))
         return -EPERM;
@@ -419,6 +419,7 @@ int SensorFW::GetMagnetometerEvent(uint64_t *ts, float *x, float *y, float *z,
     *rx = data->magnetometer_event.rx_ / 1000.00f;
     *ry = data->magnetometer_event.ry_ / 1000.00f;
     *rz = data->magnetometer_event.rz_ / 1000.00f;
+    *level = data->magnetometer_event.level_;
 
     return 0;
 }

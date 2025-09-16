@@ -96,8 +96,7 @@ static void sensor_event_cb(void *userdata, int id)
 
     int64_t event_time = -1;
     uint64_t ts;
-    float x, y, z, rx, ry, rz;
-    int tmp;
+    int x, y, z, rx, ry, rz, tmp;
     unsigned value;
     bool isNear;
 
@@ -110,9 +109,9 @@ static void sensor_event_cb(void *userdata, int id)
             if (dev->mSensorFWDevice->GetAccelerometerEvent(&ts, &x, &y, &z) == 0) {
                 if (ts != dev->last_TimeStamp[ID_ACCELEROMETER]) {
                     new_sensors |= SENSORS_ACCELEROMETER;
-                    events[ID_ACCELEROMETER].u.vec3.x = x;
-                    events[ID_ACCELEROMETER].u.vec3.y = y;
-                    events[ID_ACCELEROMETER].u.vec3.z = z;
+                    events[ID_ACCELEROMETER].u.vec3.x = x / 100.00f;
+                    events[ID_ACCELEROMETER].u.vec3.y = y / 100.00f;
+                    events[ID_ACCELEROMETER].u.vec3.z = z / 100.00f;
                     events[ID_ACCELEROMETER].u.vec3.status = ACCURACY_MEDIUM;
                     events[ID_ACCELEROMETER].sensorType = SENSOR_TYPE_ACCELEROMETER;
                     dev->last_TimeStamp[ID_ACCELEROMETER] = ts;
@@ -123,9 +122,9 @@ static void sensor_event_cb(void *userdata, int id)
             if (dev->mSensorFWDevice->GetGyroscopeEvent(&ts, &x, &y, &z) == 0) {
                 if (ts != dev->last_TimeStamp[ID_GYROSCOPE]) {
                     new_sensors |= SENSORS_GYROSCOPE;
-                    events[ID_GYROSCOPE].u.vec3.x = x;
-                    events[ID_GYROSCOPE].u.vec3.y = y;
-                    events[ID_GYROSCOPE].u.vec3.z = z;
+                    events[ID_GYROSCOPE].u.vec3.x = x / 1000.000f;
+                    events[ID_GYROSCOPE].u.vec3.y = y / 1000.000f;
+                    events[ID_GYROSCOPE].u.vec3.z = z / 1000.000f;
                     events[ID_GYROSCOPE].u.vec3.status = ACCURACY_MEDIUM;
                     events[ID_GYROSCOPE].sensorType = SENSOR_TYPE_GYROSCOPE;
                     dev->last_TimeStamp[ID_GYROSCOPE] = ts;
@@ -153,7 +152,7 @@ static void sensor_event_cb(void *userdata, int id)
             }
             break;
         case ID_MAGNETIC_FIELD:
-            if (dev->mSensorFWDevice->GetMagnetometerEvent(&ts, &x, &y, &z, &rx, &ry, &rz) == 0) {
+            if (false && dev->mSensorFWDevice->GetMagnetometerEvent(&ts, &x, &y, &z, &rx, &ry, &rz, &tmp) == 0) {
                 if (ts != dev->last_TimeStamp[ID_MAGNETIC_FIELD]) {
                     new_sensors |= SENSORS_MAGNETIC_FIELD;
                     events[ID_MAGNETIC_FIELD].u.vec3.x = x;
@@ -172,6 +171,22 @@ static void sensor_event_cb(void *userdata, int id)
                     events[ID_MAGNETIC_FIELD_UNCALIBRATED].sensorType = SENSOR_TYPE_MAGNETIC_FIELD;
                     dev->last_TimeStamp[ID_MAGNETIC_FIELD_UNCALIBRATED] = ts;
                 }
+            } else {
+                new_sensors |= SENSORS_MAGNETIC_FIELD;
+                events[ID_MAGNETIC_FIELD].u.vec3.x = 0;
+                events[ID_MAGNETIC_FIELD].u.vec3.y = 0;
+                events[ID_MAGNETIC_FIELD].u.vec3.z = 0;
+                events[ID_MAGNETIC_FIELD].u.vec3.status = UNRELIABLE;
+                events[ID_MAGNETIC_FIELD].sensorType = SENSOR_TYPE_MAGNETIC_FIELD;
+                dev->last_TimeStamp[ID_MAGNETIC_FIELD] = 0;
+
+                new_sensors |= SENSORS_MAGNETIC_FIELD_UNCALIBRATED;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.x = 0;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.y = 0;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.z = 0;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].u.vec3.status = UNRELIABLE;
+                events[ID_MAGNETIC_FIELD_UNCALIBRATED].sensorType = SENSOR_TYPE_MAGNETIC_FIELD;
+                dev->last_TimeStamp[ID_MAGNETIC_FIELD_UNCALIBRATED] = 0;
             }
             break;
         case ID_DEVICE_ORIENTATION:

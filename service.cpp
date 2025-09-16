@@ -151,18 +151,12 @@ app_reply(GBinderLocalObject *obj,
     GBinderLocalReply *reply = NULL;
     GBinderReader reader;
     GBinderWriter writer;
-    const char *iface = gbinder_remote_request_interface(req);
-
-    if (g_strcmp0(iface, DEFAULT_IFACE) != 0) {
-        g_debug("Unexpected interface \"%s\"", iface);
-        return reply;
-    }
 
     gbinder_remote_request_init_reader(req, &reader);
+    if (code == GET_SENSORS_LIST) {
+        const char *iface = gbinder_remote_request_interface(req);
 
-    switch (code) {
-    case GET_SENSORS_LIST:
-        {
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
 
             gbinder_local_reply_append_int32(reply, GBINDER_STATUS_OK);
@@ -198,10 +192,13 @@ app_reply(GBinderLocalObject *obj,
 
             for (int i = 0; i < sensors_len; i++)
                 sensors_write_info_strings(&writer, sensors + i, index, i);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case SET_OPERATION_MODE:
-        {
+    } else if (code == SET_OPERATION_MODE) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             gint32 tmp = 0;
             gbinder_reader_read_int32(&reader, &tmp);
             reply = gbinder_local_object_new_reply(obj);
@@ -211,10 +208,13 @@ app_reply(GBinderLocalObject *obj,
 
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case ACTIVATE:
-        {
+    } else if (code == ACTIVATE) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int handle = 0;
             gboolean enabled;
             gbinder_reader_read_int32(&reader, &handle);
@@ -227,10 +227,13 @@ app_reply(GBinderLocalObject *obj,
 
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, app->service->activate(handle, enabled == TRUE));
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case POLL:
-        {
+    } else if (code == POLL) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int maxCount = 0;
             gbinder_reader_read_int32(&reader, &maxCount);
 
@@ -248,9 +251,13 @@ app_reply(GBinderLocalObject *obj,
                             resp, app_async_free);
             gbinder_remote_request_block(resp->req);
             return NULL;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case BATCH:
-        {
+    } else if (code == BATCH) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             gint32 tmp = 0;
             gint64 tmp64 = 0;
             gbinder_reader_read_int32(&reader, &tmp);
@@ -264,10 +271,13 @@ app_reply(GBinderLocalObject *obj,
 
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_OK);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case FLUSH:
-        {
+    } else if (code == FLUSH) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int handle = 0;
             gbinder_reader_read_int32(&reader, &handle);
 
@@ -278,10 +288,13 @@ app_reply(GBinderLocalObject *obj,
 
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, app->service->flush(handle));
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case INJECT_SENSOR_DATA:
-        {
+    } else if (code == INJECT_SENSOR_DATA) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
 
             gbinder_local_reply_append_int32(reply, GBINDER_STATUS_OK);
@@ -289,10 +302,13 @@ app_reply(GBinderLocalObject *obj,
 
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case REGISTER_DIRECT_CHANNEL:
-        {
+    } else if (code == REGISTER_DIRECT_CHANNEL) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
 
             gbinder_local_reply_append_int32(reply, GBINDER_STATUS_OK);
@@ -301,10 +317,13 @@ app_reply(GBinderLocalObject *obj,
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
             gbinder_writer_append_int32(&writer, -1);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case UNREGISTER_DIRECT_CHANNEL:
-        {
+    } else if (code == UNREGISTER_DIRECT_CHANNEL) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             int tmp = 0;
             gbinder_reader_read_int32(&reader, &tmp);
 
@@ -315,10 +334,13 @@ app_reply(GBinderLocalObject *obj,
 
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_OK);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
-    case CONFIG_DIRECT_REPORT:
-        {
+    } else if (code == CONFIG_DIRECT_REPORT) {
+        const char *iface = gbinder_remote_request_interface(req);
+
+        if (!g_strcmp0(iface, DEFAULT_IFACE)) {
             reply = gbinder_local_object_new_reply(obj);
 
             gbinder_local_reply_append_int32(reply, GBINDER_STATUS_OK);
@@ -327,7 +349,8 @@ app_reply(GBinderLocalObject *obj,
             gbinder_local_reply_init_writer(reply, &writer);
             gbinder_writer_append_int32(&writer, RESULT_INVALID_OPERATION);
             gbinder_writer_append_int32(&writer, -1);
-            break;
+        } else {
+            g_debug("Unexpected interface \"%s\"", iface);
         }
     }
 

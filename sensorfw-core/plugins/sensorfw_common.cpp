@@ -49,13 +49,13 @@ andromeda::core::Sensorfw::Sensorfw(
 
     char *new_str;
     if (asprintf(&new_str,"%s/%s", dbus_sensorfw_path, plugin_string()) == -1)
-        g_debug("Unable to create the plugin path.");
+        GINFO("Unable to create the plugin path.");
     else
         m_pluginPath.reset(new_str);
 
-    g_debug("Got plugin_string %s", plugin_string());
-    g_debug("Got plugin_interface %s", plugin_interface());
-    g_debug("Got plugin_path %s", plugin_path());
+    GINFO("Got plugin_string %s", plugin_string());
+    GINFO("Got plugin_interface %s", plugin_interface());
+    GINFO("Got plugin_path %s", plugin_path());
 
     dbus_event_loop.enqueue([this]{
         m_socket->initiateConnection(m_sessionid);
@@ -143,7 +143,7 @@ bool andromeda::core::Sensorfw::load_plugin()
 
     if (err != NULL)
     {
-        g_debug("failed to call load_plugin: %s", err->message);
+        GINFO("failed to call load_plugin: %s", err->message);
         g_variant_unref(result);
         return false;
     }
@@ -173,7 +173,7 @@ void andromeda::core::Sensorfw::request_sensor()
 
     if (!result)
     {
-        g_debug("failed to call request_sensor");
+        GINFO("failed to call request_sensor");
         return;
     }
 
@@ -183,7 +183,7 @@ void andromeda::core::Sensorfw::request_sensor()
 
     m_sessionid = the_result;
 
-    g_debug("Got new plugin for %s with pid %i and session %i", plugin_string(), m_pid, m_sessionid);
+    GINFO("Got new plugin for %s with pid %i and session %i", plugin_string(), m_pid, m_sessionid);
 }
 
 bool andromeda::core::Sensorfw::release_sensor()
@@ -204,7 +204,7 @@ bool andromeda::core::Sensorfw::release_sensor()
 
     if (!result)
     {
-        g_debug("failed to release SensorfwSensor");
+        GINFO("failed to release SensorfwSensor");
         return false;
     }
 
@@ -263,7 +263,7 @@ void andromeda::core::Sensorfw::start()
 
     if (!result)
     {
-        g_debug("failed to start SensorfwSensor");
+        GINFO("failed to start SensorfwSensor");
         stop();
         return;
     }
@@ -291,7 +291,7 @@ void andromeda::core::Sensorfw::stop()
 
     if (!result)
     {
-        g_debug("failed to stop SensorfwSensor");
+        GINFO("failed to stop SensorfwSensor");
     } else {
         g_variant_unref(result);
     }
@@ -317,7 +317,7 @@ void andromeda::core::Sensorfw::set_interval(int interval) {
 
     if (!result)
     {
-        g_debug("set_interval() failed to releaseSensor");
+        GINFO("set_interval() failed to releaseSensor");
         return;
     }
     g_variant_unref(result);

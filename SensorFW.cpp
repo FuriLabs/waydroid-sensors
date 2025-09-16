@@ -179,15 +179,6 @@ SensorFW::SensorFW()
     }
 }
 
-SensorFW::~SensorFW() {
-    cleanup();
-
-    if (data) {
-        g_free(data);
-        data = nullptr;
-    }
-}
-
 void
 SensorFW::RegisterSensors(sensor_event_cb_t cb, void *userdata)
 {
@@ -566,7 +557,6 @@ SensorFW::cleanup()
 
     mRegistrations.clear();
 
-    if (data)
-        memset(data->sensorEventEnable, 0, sizeof(data->sensorEventEnable));
+    memset(data->sensorEventEnable, 0, sizeof(data->sensorEventEnable));
 }
 } // namespace andromeda

@@ -50,8 +50,6 @@ typedef struct SensorDevice {
 
 struct Sensors {
     Sensors();
-    ~Sensors();
-
 
     std::vector<sensor_t> getSensorsList();
     int activate(int32_t handle, bool enabled);

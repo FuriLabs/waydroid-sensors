@@ -1,5 +1,5 @@
 /*
- * Copyright © 2025 Andromeda Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -14,11 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Erfan Abdi <erfangplus@gmail.com>
- *              Bardia Moshiri <bardia@furilabs.com>
  */
 
-#ifndef SENSORFW_H_
-#define SENSORFW_H_
+#ifndef SENSORHW_H_
+#define SENSORHW_H_
 
 #include <plugins/sensorfw_accelerometer_sensor.h>
 #include <plugins/sensorfw_gyroscope_sensor.h>

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2025 Andromeda Project.
+ * Copyright © 2021 Andromeda Project.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Erfan Abdi <erfangplus@gmail.com>
- *              Bardia Moshiri <bardia@furilabs.com>
  */
 
 #include "SensorFW.h"
@@ -26,19 +25,26 @@
 
 namespace andromeda {
 
-void
-SensorFW::waitForSensorfwService()
+std::string the_dbus_bus_address()
 {
+	auto const address = std::unique_ptr<gchar, decltype(&g_free)>{
+		g_dbus_address_get_for_bus_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr),
+		g_free};
+
+	return address ? address.get() : std::string{};
+}
+
+void SensorFW::waitForSensorfwService() {
     GDBusConnection *connection = g_bus_get_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr);
     if (!connection) {
-        g_debug("Failed to connect to system bus");
+        GINFO("Failed to connect to system bus");
         return;
     }
 
     const int RETRY_DELAY_MS = 1000;  // 1 second delay between retries
     bool service_available = false;
 
-    g_debug("Waiting for SensorFW service to become available...");
+    GINFO("Waiting for SensorFW service to become available...");
     while (!service_available) {
         GError *error = nullptr;
         GVariant *result = g_dbus_connection_call_sync(
@@ -67,7 +73,7 @@ SensorFW::waitForSensorfwService()
         }
 
         if (error) {
-            g_debug("Error checking service: %s", error->message);
+            GINFO("Error checking service: %s", error->message);
             g_error_free(error);
         }
 
@@ -75,19 +81,12 @@ SensorFW::waitForSensorfwService()
     }
 
     g_object_unref(connection);
-    g_debug("SensorFW service is now available");
+    GINFO("SensorFW service is now available");
 }
 
 SensorFW::SensorFW()
-    : data(nullptr)
-{
-
-    auto const address = std::unique_ptr<gchar, decltype(&g_free)>{
-            g_dbus_address_get_for_bus_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr),
-            g_free};
-
-    std::string dbus_address = address ? address.get() : std::string{};
-
+    : data(nullptr) {
+    std::string dbus_address = the_dbus_bus_address();
     data = g_new0(SensorData, 1);
 
     waitForSensorfwService();
@@ -98,90 +97,79 @@ SensorFW::SensorFW()
         data->sensorAvailable[ID_LINEAR_ACCELERATION] = TRUE;
         data->sensorAvailable[ID_GRAVITY] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwAccelerometerSensor: %s", e.what());
+        GINFO("Failed to create SensorfwAccelerometerSensor: %s", e.what());
         data->sensorAvailable[ID_ACCELEROMETER] = FALSE;
         data->sensorAvailable[ID_LINEAR_ACCELERATION] = FALSE;
         data->sensorAvailable[ID_GRAVITY] = FALSE;
     }
-
     try {
         data->gyroscope_sensor = std::make_shared<andromeda::core::SensorfwGyroscopeSensor>(dbus_address);
         data->sensorAvailable[ID_GYROSCOPE] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwGyroscopeSensor: %s", e.what());
+        GINFO("Failed to create SensorfwGyroscopeSensor: %s", e.what());
         data->sensorAvailable[ID_GYROSCOPE] = FALSE;
     }
-
     try {
         data->humidity_sensor = std::make_shared<andromeda::core::SensorfwHumiditySensor>(dbus_address);
         data->sensorAvailable[ID_HUMIDITY] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwHumiditySensor: %s", e.what());
+        GINFO("Failed to create SensorfwHumiditySensor: %s", e.what());
         data->sensorAvailable[ID_HUMIDITY] = FALSE;
     }
-
     try {
         data->light_sensor = std::make_shared<andromeda::core::SensorfwLightSensor>(dbus_address);
         data->sensorAvailable[ID_LIGHT] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwLightSensor: %s", e.what());
+        GINFO("Failed to create SensorfwLightSensor: %s", e.what());
         data->sensorAvailable[ID_LIGHT] = FALSE;
     }
-
     try {
         data->magnetometer_sensor = std::make_shared<andromeda::core::SensorfwMagnetometerSensor>(dbus_address);
         data->sensorAvailable[ID_MAGNETIC_FIELD] = TRUE;
         data->sensorAvailable[ID_MAGNETIC_FIELD_UNCALIBRATED] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwMagnetometerSensor: %s", e.what());
+        GINFO("Failed to create SensorfwMagnetometerSensor: %s", e.what());
         data->sensorAvailable[ID_MAGNETIC_FIELD] = FALSE;
         data->sensorAvailable[ID_MAGNETIC_FIELD_UNCALIBRATED] = FALSE;
     }
-
     try {
         data->orientation_sensor = std::make_shared<andromeda::core::SensorfwOrientationSensor>(dbus_address);
         data->sensorAvailable[ID_DEVICE_ORIENTATION] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwOrientationSensor: %s", e.what());
+        GINFO("Failed to create SensorfwOrientationSensor: %s", e.what());
         data->sensorAvailable[ID_DEVICE_ORIENTATION] = FALSE;
     }
-
     try {
         data->pressure_sensor = std::make_shared<andromeda::core::SensorfwPressureSensor>(dbus_address);
         data->sensorAvailable[ID_PRESSURE] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwPressureSensor: %s", e.what());
+        GINFO("Failed to create SensorfwPressureSensor: %s", e.what());
         data->sensorAvailable[ID_PRESSURE] = FALSE;
     }
-
     try {
         data->proximity_sensor = std::make_shared<andromeda::core::SensorfwProximitySensor>(dbus_address);
         data->sensorAvailable[ID_PROXIMITY] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwProximitySensor: %s", e.what());
+        GINFO("Failed to create SensorfwProximitySensor: %s", e.what());
         data->sensorAvailable[ID_PROXIMITY] = FALSE;
     }
-
     try {
         data->stepcounter_sensor = std::make_shared<andromeda::core::SensorfwStepcounterSensor>(dbus_address);
         data->sensorAvailable[ID_STEPCOUNTER] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwStepcounterSensor: %s", e.what());
+        GINFO("Failed to create SensorfwStepcounterSensor: %s", e.what());
         data->sensorAvailable[ID_STEPCOUNTER] = FALSE;
     }
-
     try {
         data->temperature_sensor = std::make_shared<andromeda::core::SensorfwTemperatureSensor>(dbus_address);
         data->sensorAvailable[ID_TEMPERATURE] = TRUE;
     } catch (std::exception const &e) {
-        g_debug("Failed to create SensorfwTemperatureSensor: %s", e.what());
+        GINFO("Failed to create SensorfwTemperatureSensor: %s", e.what());
         data->sensorAvailable[ID_TEMPERATURE] = FALSE;
     }
 }
 
-void
-SensorFW::RegisterSensors(sensor_event_cb_t cb, void *userdata)
-{
+void SensorFW::RegisterSensors(sensor_event_cb_t cb, void *userdata) {
     if (data->sensorAvailable[ID_ACCELEROMETER]) {
         mRegistrations.push_back(
             data->accelerometer_sensor->register_accelerometer_handler(
@@ -266,27 +254,21 @@ SensorFW::RegisterSensors(sensor_event_cb_t cb, void *userdata)
     }
 }
 
-bool
-SensorFW::IsSensorAvailable(int id)
-{
+bool SensorFW::IsSensorAvailable(int id) {
     if (id >= MAX_NUM_SENSORS)
         return false;
 
     return data->sensorAvailable[id];
 }
 
-bool
-SensorFW::IsSensorEventEnable(int id)
-{
+bool SensorFW::IsSensorEventEnable(int id) {
     if (!IsSensorAvailable(id))
         return false;
 
     return data->sensorEventEnable[id];
 }
 
-int
-SensorFW::EnableSensorEvents(int id)
-{
+int SensorFW::EnableSensorEvents(int id) {
     if (!IsSensorAvailable(id))
         return -ENODEV;
 
@@ -339,9 +321,7 @@ SensorFW::EnableSensorEvents(int id)
     return 0;
 }
 
-int
-SensorFW::DisableSensorEvents(int id)
-{
+int SensorFW::DisableSensorEvents(int id) {
     if (!IsSensorAvailable(id))
         return -ENODEV;
 
@@ -394,9 +374,7 @@ SensorFW::DisableSensorEvents(int id)
     return 0;
 }
 
-int
-SensorFW::GetAccelerometerEvent(uint64_t *ts, float *x, float *y, float *z)
-{
+int SensorFW::GetAccelerometerEvent(uint64_t *ts, float *x, float *y, float *z) {
     if (!IsSensorEventEnable(ID_ACCELEROMETER))
         return -EPERM;
 
@@ -410,9 +388,7 @@ SensorFW::GetAccelerometerEvent(uint64_t *ts, float *x, float *y, float *z)
     return 0;
 }
 
-int
-SensorFW::GetGyroscopeEvent(uint64_t *ts, float *x, float *y, float *z)
-{
+int SensorFW::GetGyroscopeEvent(uint64_t *ts, float *x, float *y, float *z) {
     if (!IsSensorEventEnable(ID_GYROSCOPE))
         return -EPERM;
 
@@ -426,9 +402,7 @@ SensorFW::GetGyroscopeEvent(uint64_t *ts, float *x, float *y, float *z)
     return 0;
 }
 
-int
-SensorFW::GetHumidityEvent(uint64_t *ts, unsigned *value)
-{
+int SensorFW::GetHumidityEvent(uint64_t *ts, unsigned *value) {
     if (!IsSensorEventEnable(ID_HUMIDITY))
         return -EPERM;
 
@@ -438,9 +412,7 @@ SensorFW::GetHumidityEvent(uint64_t *ts, unsigned *value)
     return 0;
 }
 
-int
-SensorFW::GetLightEvent(uint64_t *ts, unsigned *value)
-{
+int SensorFW::GetLightEvent(uint64_t *ts, unsigned *value) {
     if (!IsSensorEventEnable(ID_LIGHT))
         return -EPERM;
 
@@ -450,10 +422,8 @@ SensorFW::GetLightEvent(uint64_t *ts, unsigned *value)
     return 0;
 }
 
-int
-SensorFW::GetMagnetometerEvent(uint64_t *ts, float *x, float *y, float *z,
-                               float *rx, float *ry, float *rz)
-{
+int SensorFW::GetMagnetometerEvent(uint64_t *ts, float *x, float *y, float *z,
+                                   float *rx, float *ry, float *rz) {
     if (!IsSensorEventEnable(ID_MAGNETIC_FIELD) &&
         !IsSensorEventEnable(ID_MAGNETIC_FIELD_UNCALIBRATED))
         return -EPERM;
@@ -471,14 +441,13 @@ SensorFW::GetMagnetometerEvent(uint64_t *ts, float *x, float *y, float *z,
     return 0;
 }
 
-int
-SensorFW::GetOrientationEvent(uint64_t *ts, int *degree)
-{
+int SensorFW::GetOrientationEvent(uint64_t *ts, int *degree) {
     if (!IsSensorEventEnable(ID_DEVICE_ORIENTATION))
         return -EPERM;
 
     *ts = data->orientation_event.timestamp_;
-    switch (data->orientation_event.orientation_) {
+    switch (data->orientation_event.orientation_)
+    {
     case PoseData::Orientation::RightUp:
         *degree = 1;
         break;
@@ -496,9 +465,7 @@ SensorFW::GetOrientationEvent(uint64_t *ts, int *degree)
     return 0;
 }
 
-int
-SensorFW::GetPressureEvent(uint64_t *ts, unsigned *value)
-{
+int SensorFW::GetPressureEvent(uint64_t *ts, unsigned *value) {
     if (!IsSensorEventEnable(ID_PRESSURE))
         return -EPERM;
 
@@ -510,9 +477,7 @@ SensorFW::GetPressureEvent(uint64_t *ts, unsigned *value)
     return 0;
 }
 
-int
-SensorFW::GetProximityEvent(uint64_t *ts, unsigned *value, bool *isNear)
-{
+int SensorFW::GetProximityEvent(uint64_t *ts, unsigned *value, bool *isNear) {
     if (!IsSensorEventEnable(ID_PROXIMITY))
         return -EPERM;
 
@@ -523,9 +488,7 @@ SensorFW::GetProximityEvent(uint64_t *ts, unsigned *value, bool *isNear)
     return 0;
 }
 
-int
-SensorFW::GetStepcounterEvent(uint64_t *ts, unsigned *value)
-{
+int SensorFW::GetStepcounterEvent(uint64_t *ts, unsigned *value) {
     if (!IsSensorEventEnable(ID_STEPCOUNTER))
         return -EPERM;
 
@@ -535,9 +498,7 @@ SensorFW::GetStepcounterEvent(uint64_t *ts, unsigned *value)
     return 0;
 }
 
-int
-SensorFW::GetTemperatureEvent(uint64_t *ts, unsigned *value)
-{
+int SensorFW::GetTemperatureEvent(uint64_t *ts, unsigned *value) {
     if (!IsSensorEventEnable(ID_TEMPERATURE))
         return -EPERM;
 
@@ -547,12 +508,11 @@ SensorFW::GetTemperatureEvent(uint64_t *ts, unsigned *value)
     return 0;
 }
 
-void
-SensorFW::cleanup()
-{
+void SensorFW::cleanup() {
     for (int id = 0; id < MAX_NUM_SENSORS; id++) {
-        if (data->sensorEventEnable[id])
+        if (data->sensorEventEnable[id]) {
             DisableSensorEvents(id);
+        }
     }
 
     mRegistrations.clear();

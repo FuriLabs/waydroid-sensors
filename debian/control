@@ -1,9 +1,11 @@
 Source: andromeda-sensors
 Section: admin
 Priority: optional
-Build-Depends: debhelper-compat (= 13),
-               cmake (>= 2.8.10),
+Build-Depends: cmake (>= 2.8.10),
+               debhelper-compat (= 13),
+               dbus,
                libglib2.0-dev,
+               libglibutil-dev,
                libgbinder-dev (>= 1.1.20),
                pkg-config,
 Maintainer: Bardia Moshiri <bardia@furilabs.com>

@@ -132,19 +132,6 @@ static void sensor_event_cb(void *userdata, int id)
                 }
             }
             break;
-        case ID_GRAVITY:
-            if (dev->mSensorFWDevice->GetAccelerometerEvent(&ts, &x, &y, &z) == 0) {
-                if (ts != dev->last_TimeStamp[ID_GRAVITY]) {
-                    new_sensors |= SENSORS_GRAVITY;
-                    events[ID_GRAVITY].u.vec3.x = x;
-                    events[ID_GRAVITY].u.vec3.y = y;
-                    events[ID_GRAVITY].u.vec3.z = z;
-                    events[ID_GRAVITY].u.vec3.status = ACCURACY_MEDIUM;
-                    events[ID_GRAVITY].sensorType = SENSOR_TYPE_GRAVITY;
-                    dev->last_TimeStamp[ID_GRAVITY] = ts;
-                }
-            }
-            break;
         case ID_GYROSCOPE:
             if (dev->mSensorFWDevice->GetGyroscopeEvent(&ts, &x, &y, &z) == 0) {
                 if (ts != dev->last_TimeStamp[ID_GYROSCOPE]) {
@@ -357,32 +344,6 @@ std::vector<sensor_t> Sensors::getSensorsList() {
             sensor_info.version = 1;
             sensor_info.type = SENSOR_TYPE_LINEAR_ACCELERATION;
             sensor_info.typeAsString.data.str = "android.sensor.linear_acceleration";
-            sensor_info.maxRange = 39.3;
-            sensor_info.resolution = 1.0 / 4032.0;
-            sensor_info.power = 3.0;
-            sensor_info.minDelay = 10000;
-            sensor_info.fifoReservedEventCount = 0;
-            sensor_info.fifoMaxEventCount = 0;
-            sensor_info.requiredPermission.data.str = "";
-            sensor_info.maxDelay = 500000;
-            sensor_info.flags = SENSOR_FLAG_DATA_INJECTION |
-                                SENSOR_FLAG_CONTINUOUS_MODE;
-            sensor_info.name.len = strlen(sensor_info.name.data.str);
-            sensor_info.name.owns_buffer = TRUE;
-            sensor_info.vendor.len = strlen(sensor_info.vendor.data.str);
-            sensor_info.vendor.owns_buffer = TRUE;
-            sensor_info.typeAsString.len = strlen(sensor_info.typeAsString.data.str);
-            sensor_info.typeAsString.owns_buffer = TRUE;
-            sensor_info.requiredPermission.len = strlen(sensor_info.requiredPermission.data.str);
-            sensor_info.requiredPermission.owns_buffer = TRUE;
-            out_vector.push_back(sensor_info);
-            break;
-        case ID_GRAVITY:
-            sensor_info.name.data.str = "SensorFW 3-axis Gravity";
-            sensor_info.vendor.data.str = kAndromedaVendor;
-            sensor_info.version = 1;
-            sensor_info.type = SENSOR_TYPE_GRAVITY;
-            sensor_info.typeAsString.data.str = "android.sensor.gravity";
             sensor_info.maxRange = 39.3;
             sensor_info.resolution = 1.0 / 4032.0;
             sensor_info.power = 3.0;
